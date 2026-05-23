@@ -1,0 +1,4 @@
+interface:
+  display_name: "App Product Summary"
+  short_description: "Read an app codebase and write a one-file product summary."
+  default_prompt: "Read this app codebase, identify the product summary, major features, target users, value proposition, paid pain points, and catchcopy, then write them into a single markdown file."
