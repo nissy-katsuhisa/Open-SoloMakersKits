@@ -1,0 +1,59 @@
+name: 不具合報告
+description: skill または生成された workflow で再現できる問題を報告します
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        報告ありがとうございます。ほかの人が再現できるよう、十分な情報を含めてください。
+
+  - type: input
+    id: environment
+    attributes:
+      label: Agent と環境
+      description: どの agent / editor / runtime を使っていましたか？
+      placeholder: Cursor on macOS, Claude Code on Linux など
+    validations:
+      required: true
+
+  - type: input
+    id: install_method
+    attributes:
+      label: インストール方法
+      description: この skill をどうやって導入しましたか？
+      placeholder: npx skills add ..., manual clone など
+    validations:
+      required: true
+
+  - type: textarea
+    id: prompt
+    attributes:
+      label: 使った prompt
+      description: 問題を引き起こした prompt / request を貼ってください
+      placeholder: Build App Store screenshots for my app...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期待していた挙動
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 実際の挙動
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: 再現手順
+      description: 必要なら screenshots, exports, console output, generated files も含めてください
+    validations:
+      required: true

@@ -1,0 +1,15 @@
+# 対応している支援プラットフォーム
+
+github: parthjadhav
+patreon: # Patreon のユーザー名を 1 つ指定
+open_collective: # Open Collective のユーザー名を 1 つ指定
+ko_fi: # Ko-fi のユーザー名を 1 つ指定
+tidelift: # Tidelift の platform-name/package-name を 1 つ指定 例: npm/babel
+community_bridge: # Community Bridge の project-name を 1 つ指定 例: cloud-foundry
+liberapay: # Liberapay のユーザー名を 1 つ指定
+issuehunt: # IssueHunt のユーザー名を 1 つ指定
+lfx_crowdfunding: # LFX Crowdfunding の project-name を 1 つ指定 例: cloud-foundry
+polar: # Polar のユーザー名を 1 つ指定
+buy_me_a_coffee: # Buy Me a Coffee のユーザー名を 1 つ指定
+thanks_dev: # thanks.dev のユーザー名を 1 つ指定
+custom: # 最大 4 件までの支援 URL を指定 例: ['link1', 'link2']

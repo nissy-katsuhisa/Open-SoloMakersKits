@@ -1,0 +1,38 @@
+name: 機能要望
+description: skill, docs, workflow の改善案を提案します
+title: "feat: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        まずユーザー側の問題を説明し、そのあとに提案する解決策を書いてください。
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 解決したい問題
+      description: この機能は、どの実際の workflow 上の課題や品質ギャップを解消しますか？
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 提案する解決策
+      description: repo や skill の挙動をどう変えるべきですか？
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 検討した代替案
+      description: ほかに考えた workaround や案があれば書いてください
+
+  - type: textarea
+    id: extra_context
+    attributes:
+      label: 追加の文脈
+      description: example prompt, screenshot, reference, prior art など

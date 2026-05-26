@@ -1,0 +1,4 @@
+interface:
+  display_name: "App Product Summary"
+  short_description: "Read an app codebase and output a unified app info JSON with product and brand signals."
+  default_prompt: "Use $app-product-summary to read this app codebase, summarize the product, extract brand colors and concept from code and assets, and write a screenshot-ready app info JSON."
