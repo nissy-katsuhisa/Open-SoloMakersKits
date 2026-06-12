@@ -56,20 +56,13 @@ jobs:
           else
             total_count="$(jq -r '.count // 0' clones.json)"
             total_uniques="$(jq -r '.uniques // 0' clones.json)"
-            latest_day="$(jq -r '(.clones // []) | sort_by(.timestamp) | last | .timestamp[0:10] // "n/a"' clones.json)"
-            latest_count="$(jq -r '(.clones // []) | sort_by(.timestamp) | last | .count // 0' clones.json)"
-            latest_uniques="$(jq -r '(.clones // []) | sort_by(.timestamp) | last | .uniques // 0' clones.json)"
 
             content="$(
               jq -rn \
                 --arg repo "${REPOSITORY}" \
                 --arg total_count "${total_count}" \
                 --arg total_uniques "${total_uniques}" \
-                --arg latest_day "${latest_day}" \
-                --arg latest_count "${latest_count}" \
-                --arg latest_uniques "${latest_uniques}" \
-                --arg run_url "${RUN_URL}" \
-                '"GitHub clone traffic for `" + $repo + "`\nLast 14 days: " + $total_count + " clones (" + $total_uniques + " unique)\nLatest daily bucket (" + $latest_day + " UTC): " + $latest_count + " clones (" + $latest_uniques + " unique)\nRun: " + $run_url'
+                '"GitHub clone traffic for `" + $repo + "`\nLast 14 days: " + $total_count + " clones (" + $total_uniques + " unique)'
             )"
           fi
 
