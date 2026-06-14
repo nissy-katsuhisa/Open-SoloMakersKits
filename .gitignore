@@ -1,4 +1,6 @@
 .DS_Store
+
+# Generated local artifacts
 .tmp/
 data/images/
 output/

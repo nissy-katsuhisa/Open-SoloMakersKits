@@ -1,0 +1,4 @@
+interface:
+  display_name: "ネイティブアプリ セキュリティチェック"
+  short_description: "利用サービスを把握し、アプリの基本的な安全性を確認"
+  default_prompt: "$native-app-security-check を使って、利用サービスを棚卸ししたうえで、iOSまたはネイティブアプリの一般的なセキュリティ不足を確認してください。"

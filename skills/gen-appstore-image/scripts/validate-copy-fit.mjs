@@ -26,7 +26,16 @@ const DEVICE_CANVAS = {
 
 const DEFAULT_DEVICE = "iphone";
 const DEFAULT_LOCALE = "ja";
-const MAX_ORPHAN_CHARS = 2;
+const MIN_VISUAL_LINE_CHARS = 4;
+const MAX_HEADLINE_CHARS = {
+  iphone: 26,
+  ipad: 30,
+  android: 24,
+  "android-7": 28,
+  "android-10": 30,
+  "feature-graphic": 20,
+};
+const MIN_FONT_SCALE = 0.78;
 
 function parseArgs(argv) {
   const options = {
@@ -81,6 +90,7 @@ function getTextStyle(device, orientation, layout) {
   return {
     width: getCaptionWidth(cW, layout),
     fontSize: unit * 0.092,
+    minFontSize: unit * 0.092 * MIN_FONT_SCALE,
     letterSpacing: -(unit * 0.001),
     lineHeight: 0.96,
   };
@@ -212,6 +222,42 @@ async function singleLineLimit(page, style) {
   };
 }
 
+function headlineLength(text) {
+  return graphemes(text.replace(/\n/g, "")).length;
+}
+
+function hasBadLineStart(text) {
+  return /^[。、，,.!?！？]/u.test(text.trim());
+}
+
+async function fitHeadlineStyle(page, text, baseStyle) {
+  let lo = baseStyle.minFontSize;
+  let hi = baseStyle.fontSize;
+  let best = null;
+
+  for (let i = 0; i < 14; i += 1) {
+    const mid = (lo + hi) / 2;
+    const style = { ...baseStyle, fontSize: mid };
+    const visualLines = await measureHeadline(page, text, style);
+    const manualLineCount = text.split("\n").length;
+    const hasAutoWrap = visualLines.length > manualLineCount;
+
+    if (hasAutoWrap) {
+      hi = mid;
+    } else {
+      best = { style, visualLines };
+      lo = mid;
+    }
+  }
+
+  if (best) return best;
+
+  return {
+    style: { ...baseStyle, fontSize: baseStyle.minFontSize },
+    visualLines: await measureHeadline(page, text, { ...baseStyle, fontSize: baseStyle.minFontSize }),
+  };
+}
+
 async function main() {
   const options = parseArgs(process.argv);
   const filePath = path.resolve(options.file);
@@ -235,32 +281,61 @@ async function main() {
   }
 
   const failures = [];
+  const fittedSlides = [];
 
   for (const slide of normalized.slides) {
-    const style = getTextStyle(device, orientation, slide.layout);
-    const visualLines = await measureHeadline(page, slide.headline, style);
+    const baseStyle = getTextStyle(device, orientation, slide.layout);
+    const { style, visualLines } = await fitHeadlineStyle(page, slide.headline, baseStyle);
     const manualLineCount = slide.headline.split("\n").length;
-    const orphanLines = visualLines.filter((line) => visualLines.length > 1 && line.chars <= MAX_ORPHAN_CHARS);
+    const tooShortLines = visualLines.filter((line) => visualLines.length > 1 && line.chars < MIN_VISUAL_LINE_CHARS);
+    const badStartLines = visualLines.filter((line) => hasBadLineStart(line.text));
     const limit = limitsByLayout[slide.layout];
     const longestManualLine = Math.max(
       ...slide.headline.split("\n").map((line) => graphemes(line).length),
       0,
     );
+    const maxHeadlineChars = MAX_HEADLINE_CHARS[device] || MAX_HEADLINE_CHARS[DEFAULT_DEVICE];
+    const fittedStyle = {
+      fontSize: Math.round(style.fontSize * 100) / 100,
+      fontScale: Math.round((style.fontSize / baseStyle.fontSize) * 1000) / 1000,
+      minFontSize: Math.round(baseStyle.minFontSize * 100) / 100,
+    };
+
+    fittedSlides.push({
+      id: slide.id,
+      order: slide.order,
+      layout: slide.layout,
+      headline: slide.headline,
+      visualLines,
+      fittedStyle,
+    });
 
     const issues = [];
+    if (headlineLength(slide.headline) > maxHeadlineChars) {
+      issues.push({
+        type: "headline_length_exceeded",
+        message: `見出しの上限 ${maxHeadlineChars} 文字を超えています。現在 ${headlineLength(slide.headline)} 文字です。`,
+      });
+    }
     if (visualLines.length > manualLineCount) {
       issues.push({
         type: "unexpected_auto_wrap",
-        message: "Manual line breaksだけでは収まらず、自動折り返しが発生しています。",
+        message: `最小フォントサイズ ${Math.round(baseStyle.minFontSize)}px まで下げても、自動折り返しが発生しています。`,
       });
     }
-    if (orphanLines.length > 0) {
+    if (tooShortLines.length > 0) {
       issues.push({
-        type: "orphan_line",
-        message: `短すぎる行があります。最短 ${Math.min(...orphanLines.map((line) => line.chars))} 文字です。`,
+        type: "too_short_line",
+        message: `短すぎる行があります。各表示行は最低 ${MIN_VISUAL_LINE_CHARS} 文字必要です。最短 ${Math.min(...tooShortLines.map((line) => line.chars))} 文字です。`,
       });
     }
-    if (longestManualLine > limit.maxCharsWithoutWrap) {
+    if (badStartLines.length > 0) {
+      issues.push({
+        type: "bad_line_start",
+        message: "句読点や記号から始まる表示行があります。",
+      });
+    }
+    if (longestManualLine > limit.maxCharsWithoutWrap && visualLines.length > manualLineCount) {
       issues.push({
         type: "recommended_limit_exceeded",
         message: `推奨上限 ${limit.maxCharsWithoutWrap} 文字を超える行があります。最長 ${longestManualLine} 文字です。`,
@@ -275,6 +350,7 @@ async function main() {
         headline: slide.headline,
         manualLineCount,
         visualLines,
+        fittedStyle,
         issues,
       });
     }
@@ -289,6 +365,12 @@ async function main() {
     locale,
     orientation,
     limitsByLayout,
+    rules: {
+      minVisualLineChars: MIN_VISUAL_LINE_CHARS,
+      maxHeadlineChars: MAX_HEADLINE_CHARS[device] || MAX_HEADLINE_CHARS[DEFAULT_DEVICE],
+      minFontScale: MIN_FONT_SCALE,
+    },
+    fittedSlides,
     checkedSlides: normalized.slides.length,
     failures,
   };

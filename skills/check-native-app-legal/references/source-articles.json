@@ -1,0 +1,42 @@
+[
+  {
+    "title": "App Storeのプライバシー詳細",
+    "source_url": "https://developer.apple.com/app-store/app-privacy-details/"
+  },
+  {
+    "title": "App Store審査ガイドライン",
+    "source_url": "https://developer.apple.com/app-store/review/guidelines/"
+  },
+  {
+    "title": "アプリまたは第三者SDKへのプライバシーマニフェスト追加",
+    "source_url": "https://developer.apple.com/documentation/bundleresources/adding-a-privacy-manifest-to-your-app-or-third-party-sdk"
+  },
+  {
+    "title": "Google Playユーザーデータポリシー",
+    "source_url": "https://support.google.com/googleplay/android-developer/answer/10144311?hl=en"
+  },
+  {
+    "title": "Google Playデータセーフティ セクション入力ガイド",
+    "source_url": "https://support.google.com/googleplay/android-developer/answer/10787469?hl=en"
+  },
+  {
+    "title": "Google Playアプリ審査準備ガイド",
+    "source_url": "https://support.google.com/googleplay/android-developer/answer/9859455?hl=en"
+  },
+  {
+    "title": "児童オンラインプライバシー保護規則（COPPA）",
+    "source_url": "https://www.ftc.gov/legal-library/browse/rules/childrens-online-privacy-protection-rule-coppa"
+  },
+  {
+    "title": "モバイルアプリの保護",
+    "source_url": "https://www.wipo.int/publications/en/details.jsp?id=4569"
+  },
+  {
+    "title": "App Store／Google Play審査にも対応！アプリ利用規約の作り方を弁護士が徹底解説",
+    "source_url": "https://www.ys-law.jp/IT/column/column-11358/"
+  },
+  {
+    "title": "スマートフォンのアプリケーション・プライバシーポリシーに関するガイドライン",
+    "source_url": "https://www.mcf.or.jp/temp/sppv/mcf_spappp_guidline.pdf"
+  }
+]

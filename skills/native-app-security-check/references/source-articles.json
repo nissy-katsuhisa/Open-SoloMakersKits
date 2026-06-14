@@ -1,0 +1,42 @@
+[
+  {
+    "title": "iOSのセキュリティベストプラクティス",
+    "sourceUrl": "https://auth0.com/blog/security-best-practices-in-ios/"
+  },
+  {
+    "title": "安全なiOSアプリケーション開発",
+    "sourceUrl": "https://www.ncsc.gov.uk/collection/application-development/apple-ios-application-development/secure-ios-application-development"
+  },
+  {
+    "title": "App Transport Security設定を調整する",
+    "sourceUrl": "https://developer.apple.com/news/?id=jxky8h89"
+  },
+  {
+    "title": "Keychainのデータ保護",
+    "sourceUrl": "https://support.apple.com/guide/security/keychain-data-protection-secb0694df1a/web"
+  },
+  {
+    "title": "OWASP MASVS - モバイルアプリケーションセキュリティ",
+    "sourceUrl": "https://mas.owasp.org/MASVS/"
+  },
+  {
+    "title": "OWASP MASTG - モバイルアプリケーションセキュリティ",
+    "sourceUrl": "https://mas.owasp.org/MASTG/"
+  },
+  {
+    "title": "モバイルアプリセキュリティチェックリスト: 30日で安全性を高める計画",
+    "sourceUrl": "https://www.corellium.com/blog/mobile-app-security-checklist"
+  },
+  {
+    "title": "モバイルアプリセキュリティテスト完全ガイド",
+    "sourceUrl": "https://www.42gears.com/blog/mobile-app-security-testing-best-practices/"
+  },
+  {
+    "title": "Swift / Objective-C開発者向けセキュリティチェックリスト",
+    "sourceUrl": "https://www.preemptive.com/blog/security-checklist-for-swift-and-objective-c-developers/"
+  },
+  {
+    "title": "モバイルアプリケーションセキュリティの主要ベストプラクティス7選",
+    "sourceUrl": "https://www.securitycompass.com/kontra/mobile-application-security-best-practices/"
+  }
+]

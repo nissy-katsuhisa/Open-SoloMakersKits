@@ -1,0 +1,4 @@
+interface:
+  display_name: "ネイティブアプリ法務チェック"
+  short_description: "ネイティブアプリの法務・ストア審査準備を確認"
+  default_prompt: "$check-native-app-legal を使って、iOSアプリのプライバシー、ストア申告、利用規約、権利リスクを確認して。"
