@@ -51,6 +51,19 @@ Remotionプロジェクトを再利用可能な動画テンプレートとして
 
 新しい設定を作る時は `assets/video-config.example.json` を雛形にする。
 
+## 同梱テンプレート素材
+
+このスキルには、動画テンプレートの初期素材を同梱している。
+新しいRemotionプロジェクトへ使う時は、必要な素材を対象プロジェクトの `public/assets/` 配下へコピーしてから `src/video-config.json` で参照する。
+
+- `assets/scene1-hand-phone/base-green-screen.png`: シーン1の手持ちスマホ背景。画面部分は差し替え前提のグリーンスクリーン。
+- `assets/scene1-hand-phone/foreground-cutout.png`: シーン1の指や手前部分の前景レイヤー。
+- `assets/scene1-hand-phone/screen-alpha-mask.png`: シーン1のスマホ画面部分を抜くためのマスク。
+- `assets/scene1-hand-phone/config.json`: スマホ画面の4隅座標と合成ファイル名の設定。
+- `assets/scene3-background/background.png`: シーン3の背景画像。
+
+シーン1は、アプリのスクリーンショットを `config.json` の `screenCorners` に合わせて変形し、背景と前景レイヤーを重ねた完成画像を作ってから `app.scenes.scene1.handPhoneComposite` に指定する。
+
 ## 作業手順
 
 1. 対象アプリと素材を確認する。
