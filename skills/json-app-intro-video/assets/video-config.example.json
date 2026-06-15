@@ -6,6 +6,16 @@
   },
   "app": {
     "name": "Example App",
+    "audio": {
+      "backgroundMusic": {
+        "src": "assets/example/background-music.mp3",
+        "title": "Track Title",
+        "creator": "Track Creator",
+        "sourceUrl": "https://example.com/music-source",
+        "licenseUrl": "https://example.com/license",
+        "volume": 0.5
+      }
+    },
     "scenes": {
       "scene1": {
         "handPhoneComposite": "assets/example/scene1-hand-phone-composite.png"
@@ -15,16 +25,7 @@
         "phoneScreen": "assets/example/profile-main.png",
         "card": {
           "title": "プロフィール",
-          "metrics": [
-            {
-              "value": "4,215",
-              "label": "作成された投稿"
-            },
-            {
-              "value": "128",
-              "label": "つながったユーザー"
-            }
-          ],
+          "introText": "Example Appは、ユーザーの日常的な行動を自然に記録し、次のアクションにつなげるアプリです。",
           "accentColors": ["#4c3529", "#704a2d", "#7c365d", "#4e3291", "#252a32"]
         }
       },
@@ -59,4 +60,3 @@
     }
   }
 }
-

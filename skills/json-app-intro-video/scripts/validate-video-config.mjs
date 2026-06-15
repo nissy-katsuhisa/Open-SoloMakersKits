@@ -56,22 +56,26 @@ if (config) {
   const scenes = app?.scenes;
 
   requireString(app?.name, "app.name");
+
+  const music = app?.audio?.backgroundMusic;
+  if (music) {
+    requireAsset(music.src, "app.audio.backgroundMusic.src");
+    requireString(music.title, "app.audio.backgroundMusic.title");
+    requireString(music.creator, "app.audio.backgroundMusic.creator");
+    requireString(music.sourceUrl, "app.audio.backgroundMusic.sourceUrl");
+    requireString(music.licenseUrl, "app.audio.backgroundMusic.licenseUrl");
+
+    if (typeof music.volume !== "number" || music.volume < 0 || music.volume > 1) {
+      errors.push("app.audio.backgroundMusic.volume は 0 から 1 の数値にしてください");
+    }
+  }
+
   requireAsset(scenes?.scene1?.handPhoneComposite, "app.scenes.scene1.handPhoneComposite");
 
   requireStringArray(scenes?.scene2?.titleLines, "app.scenes.scene2.titleLines", 1);
   requireAsset(scenes?.scene2?.phoneScreen, "app.scenes.scene2.phoneScreen");
   requireString(scenes?.scene2?.card?.title, "app.scenes.scene2.card.title");
-
-  const metrics = scenes?.scene2?.card?.metrics;
-  if (!Array.isArray(metrics) || metrics.length === 0) {
-    errors.push("app.scenes.scene2.card.metrics は1件以上入れてください");
-  } else {
-    metrics.forEach((metric, index) => {
-      requireString(metric?.value, `app.scenes.scene2.card.metrics[${index}].value`);
-      requireString(metric?.label, `app.scenes.scene2.card.metrics[${index}].label`);
-    });
-  }
-
+  requireString(scenes?.scene2?.card?.introText, "app.scenes.scene2.card.introText");
   requireStringArray(scenes?.scene2?.card?.accentColors, "app.scenes.scene2.card.accentColors", 1);
   requireAsset(scenes?.scene3?.background, "app.scenes.scene3.background");
 

@@ -34,11 +34,12 @@ Remotionプロジェクトを再利用可能な動画テンプレートとして
 必須項目:
 
 - `app.name`: 参照用のアプリ名
+- `app.audio.backgroundMusic`: BGMを付ける場合の音源パス、曲名、制作者、配布元URL、ライセンスURL、音量
 - `app.scenes.scene1.handPhoneComposite`: アプリ画面をスマホ内に合成済みの、手持ちスマホ全画面画像
 - `app.scenes.scene2.titleLines`: シーン2でスマホ上に表示する見出し行
 - `app.scenes.scene2.phoneScreen`: シーン2のスマホ画面画像
 - `app.scenes.scene2.card.title`: 浮遊カードのタイトル
-- `app.scenes.scene2.card.metrics[]`: 浮遊カードに出す数値とラベル
+- `app.scenes.scene2.card.introText`: 浮遊カード内にタイピング表示するアプリ紹介文
 - `app.scenes.scene2.card.accentColors[]`: 浮遊カード下部の色バー
 - `app.scenes.scene3.background`: シーン3の全画面背景画像
 - `app.scenes.scene3.items[]`: 3つの機能紹介。各要素の `screen` と `title` が同じタイミングで表示される
@@ -106,8 +107,10 @@ npx remotion render <composition-id> out/app-intro.mp4 --concurrency=1
 
 - シーン1は、手持ちスマホ画像にアプリ画面を合成済みにした1枚画像を使う。
   スマホ画面を差し替える必要がある場合は、先に合成済み画像を作る。
-- シーン2は、見出し、メインのスマホ画面、浮遊カードをJSONから読む。
+- シーン2は、見出し、メインのスマホ画面、タイピング表示する浮遊カードをJSONから読む。
+- シーン2からシーン3への遷移は、シーン3背景を下に固定し、シーン2のスマホ・見出し・カードのまとまりを左手前へ3Dで抜く。
 - シーン3は3つの `items` を前提にする。配列順が、スマホ画像と左側タイトルの表示順になる。
+  各左側タイトルは、対応するスマホが中央静止から左手前へ抜け始める直前に消える。
 - シーン4は、ロゴ、枕詞、アプリ名をJSONから読む。
 
 ## 編集ルール
