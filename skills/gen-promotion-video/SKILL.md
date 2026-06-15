@@ -1,15 +1,15 @@
 ---
-name: json-app-intro-video
+name: gen-promotion-video
 description: >
-  構造化されたJSONから、Remotion製の高品質なアプリ紹介動画を作成・更新するスキル。
+  構造化されたJSONから、Remotion製の高品質なアプリプロモーション動画を作成・更新するスキル。
   アプリ名、枕詞、スクリーンショット、ロゴ、シーン文言、素材パスを
-  4シーン構成の3Dアプリ紹介動画テンプレートへ反映する時に使う。
+  4シーン構成の3Dアプリプロモーション動画テンプレートへ反映する時に使う。
   data/ や output/ 配下の既存JSONを参考にした video-config.json 作成、
   別アプリへのテンプレート適用、Remotion Studioの起動、静止画チェック、
   明示依頼がある場合のみMP4出力する作業にも使う。
 ---
 
-# JSON App Intro Video
+# Gen Promotion Video
 
 Remotionプロジェクトを再利用可能な動画テンプレートとして扱い、
 `src/video-config.json` をアプリごとの差し替え入力として扱う。
@@ -85,7 +85,7 @@ Remotionプロジェクトを再利用可能な動画テンプレートとして
 5. JSONと素材パスを検証する。
 
 ```bash
-node agents/skills/json-app-intro-video/scripts/validate-video-config.mjs <remotion-project>/src/video-config.json
+node agents/skills/gen-promotion-video/scripts/validate-video-config.mjs <remotion-project>/src/video-config.json
 ```
 
 6. Remotion Studioで確認する。
@@ -100,7 +100,7 @@ http://localhost:<port>/<composition-id>
    必要に応じて低並列にする。
 
 ```bash
-npx remotion render <composition-id> out/app-intro.mp4 --concurrency=1
+npx remotion render <composition-id> out/promotion-video.mp4 --concurrency=1
 ```
 
 ## シーン間の関係

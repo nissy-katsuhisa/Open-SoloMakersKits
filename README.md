@@ -18,15 +18,14 @@
   - 解説画像: [`skill-explanation-images/check-native-app-legal-flow.png`](skill-explanation-images/check-native-app-legal-flow.png)
   - 注意: このskillは法務確認の一次整理を補助するもので、法的助言ではありません。確実な対策が必要な場合は、自分で最新情報を調べ、必要に応じて弁護士などの専門家に確認してください。
 - `skills/gen-appstore-image/`: App Store / Google Play 用スクリーンショット画像を、アプリ理解・ブランド抽出・必要なスクリーンショット取得を踏まえて生成する skill bundle
-  - 種別: bundle（内部に `skills/gen-appstore-image/skills/gen-appstore-image/` を含む）
+  - 種別: skill bundle（入口は `skills/gen-appstore-image/SKILL.md`）
   - 解説画像: [`skill-explanation-images/gen-appstore-image-flow.png`](skill-explanation-images/gen-appstore-image-flow.png)
-- `skills/gen-feed-posts/`: アプリ情報をもとに Instagram フィード投稿画像を生成する workflow bundle
-  - 種別: bundle（内部に `app-product-summary` と `instagram-feed-image-generation` を含む）
+- `skills/gen-feed-posts/`: `data/app-product-context.json` を共通入力として Instagram フィード投稿画像を生成する skill bundle
+  - 種別: bundle（内部に `instagram-feed-image-generation` を含む。app product context がない場合は `skills/app-product-summary/` で先に生成）
   - 解説画像: [`skill-explanation-images/gen-feed-posts-flow.png`](skill-explanation-images/gen-feed-posts-flow.png)
-- `skills/gen-skill-reference-video/`: OpenSoloMakersKits の各 skill を紹介する Remotion 参考動画を、実素材・Irodori音声・MP4書き出しまで含めて作る skill
+- `skills/gen-promotion-video/`: JSON 設定から Remotion のアプリプロモーション動画を作成する skill
   - 種別: 単体 skill
-  - 更新日: 2026-06-12
-  - 備考: サムネイルは明示指定がない限り作成しません。
+  - 解説画像: [`skill-explanation-images/gen-promotion-video-flow.png`](skill-explanation-images/gen-promotion-video-flow.png)
 - `skills/native-app-security-check/`: iOS、Android、その他ネイティブアプリのコード・設定・利用サービスを読み、セキュリティ確認項目を整理する skill
   - 種別: 単体 skill
   - 更新日: 2026-06-12

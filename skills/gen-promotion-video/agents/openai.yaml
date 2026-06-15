@@ -1,0 +1,6 @@
+interface:
+  display_name: "プロモーション動画生成"
+  short_description: "JSONからRemotionプロモーション動画を作成"
+  default_prompt: "$gen-promotion-video を使って、JSON設定からRemotionのアプリプロモーション動画を作成してください。"
+policy:
+  allow_implicit_invocation: true

@@ -8,7 +8,7 @@
 AI コーディングエージェント向けの headless skill bundle です。**App Store / Google Play 用スクリーンショット**を直接生成します。iOS アプリのリポジトリ内で使う場合は、コードからアプリを理解し、実際のデザイントークンやアセットからブランド方針を抽出し、シミュレータからベース画像を撮影し、最終的なストア用画像まで生成できます。
 
 #### Screenshots & App approved by Apple - https://apps.apple.com/us/app/bloom-coffee-shelf-recipe/id6759914524
-![Example output — Bloom coffee tracking app](example.png)
+![Example output — Bloom coffee tracking app](assets/example.png)
 
 ## できること
 
@@ -45,9 +45,21 @@ AI コーディングエージェント向けの headless skill bundle です。
 
 ## 含まれる skill
 
-- `skills/gen-appstore-image`
+- `SKILL.md`
   - スクリーンショットの撮影、screenshot plan の作成、最終画像の生成を直接行う
   - iOS の場合は別の撮影 skill を前提にせず、この skill 自体の workflow の中で simulator capture まで進める
+
+## リポジトリ内の構成
+
+- `SKILL.md`: コーディングエージェントが実行する App Store / Google Play 画像生成 workflow
+- `README.md`: 人間向けの概要と使い方
+- `LICENSE`: OSS 由来の著作権表示とライセンス
+- `CONTRIBUTING.md`: upstream 由来の contributor guide
+- `.github/`, `.gitignore`: upstream 由来の repository metadata と ignore 設定
+- `assets/`: README 用の example 画像と、生成テンプレートで参照する mockup 画像
+- `references/style-prompts.md`: 利用できる style prompt の一覧
+- `references/style-prompts/`: 各 style の詳細仕様
+- `scripts/validate-copy-fit.mjs`: headline copy が画像内に収まるかを検証する script
 
 ## 共有依存
 

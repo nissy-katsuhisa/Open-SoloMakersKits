@@ -1,4 +1,0 @@
-interface:
-  display_name: "スキル紹介動画生成"
-  short_description: "Remotionでスキル紹介動画を作成"
-  default_prompt: "$gen-skill-reference-video を使って、このスキルの短い紹介動画を作成してください。"

@@ -22,14 +22,14 @@ OpenSoloMakersKits
     │   ├── SKILL.md
     │   └── references/
     ├── gen-feed-posts/
-    │   ├── workflow.md
-    │   ├── app-product-summary/
     │   └── instagram-feed-image-generation/
     └── gen-appstore-image/
+        ├── SKILL.md
         ├── README.md
-        └── skills/
-            └── gen-appstore-image/
-                └── SKILL.md
+        ├── LICENSE
+        ├── assets/
+        ├── references/
+        └── scripts/
 ```
 
 ## Generated file conventions

@@ -1,6 +1,0 @@
-interface:
-  display_name: "JSONアプリ紹介動画"
-  short_description: "JSONからRemotion紹介動画を作成"
-  default_prompt: "$json-app-intro-video を使って、JSON設定からRemotionのアプリ紹介動画を作成してください。"
-policy:
-  allow_implicit_invocation: true

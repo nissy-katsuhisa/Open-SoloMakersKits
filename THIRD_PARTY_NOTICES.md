@@ -11,6 +11,7 @@
 - ライセンス: MIT
 - 著作権表示: Copyright (c) 2026 Parth Jadhav
 - 参照先: `skills/gen-appstore-image/LICENSE`
+- 備考: OSS 由来のファイル構成を、このリポジトリ内の skill として読みやすいように整理して同梱しています。
 
 ## 取り扱い方針
 
