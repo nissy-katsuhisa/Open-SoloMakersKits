@@ -18,7 +18,6 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
 const defaultOutputRoot = "output/app-store-screenshots";
 const defaultPreviewRoot = "output/app-store-screenshot-previews";
 const defaultManifestRoot = "output/app-store-screenshot-work";
-const devicePath = path.join("apple", "iphone", "6.9", "ja");
 
 const defaultBackgrounds = [
   "linear-gradient(160deg, #09090F 0%, #1D1538 52%, #071F2E 100%)",
@@ -41,8 +40,8 @@ const manifestRoot = path.resolve(repoRoot, options.manifestRoot);
 const planPath = path.resolve(repoRoot, options.plan);
 const plan = JSON.parse(await readFile(planPath, "utf8"));
 const runId = options.runId || await readLatestRunId(manifestRoot) || formatRunTimestamp(new Date());
-const finalDir = path.join(outputRoot, runId, devicePath);
-const previewDir = path.join(previewRoot, runId, devicePath);
+const finalDir = path.join(outputRoot, runId);
+const previewDir = path.join(previewRoot, runId);
 const runManifestDir = path.join(manifestRoot, runId);
 
 await mkdir(finalDir, { recursive: true });
@@ -391,8 +390,8 @@ async function updateManifests({
     manifest.fileSuffix = renderOptions.fileSuffix || "";
     manifest.contactSheet = {
       fileName: contactSheetFileName(renderOptions.fileSuffix),
-      path: path.join("output/app-store-screenshot-previews", currentRunId, devicePath, contactSheetFileName(renderOptions.fileSuffix)),
-      url: `/output/app-store-screenshot-previews/${currentRunId}/${devicePath}/${contactSheetFileName(renderOptions.fileSuffix)}`
+      path: path.join("output/app-store-screenshot-previews", currentRunId, contactSheetFileName(renderOptions.fileSuffix)),
+      url: `/output/app-store-screenshot-previews/${currentRunId}/${contactSheetFileName(renderOptions.fileSuffix)}`
     };
     manifest.renderAdjustments = {
       headlineWeight: renderOptions.headlineWeight,
@@ -403,7 +402,7 @@ async function updateManifests({
     manifest.outputRoot = "output/app-store-screenshots";
     manifest.previewRoot = "output/app-store-screenshot-previews";
     manifest.workRoot = "output/app-store-screenshot-work";
-    manifest.finalAssetsPath = path.join("output/app-store-screenshots", currentRunId, devicePath);
+    manifest.finalAssetsPath = path.join("output/app-store-screenshots", currentRunId);
     delete manifest.canonicalFinalAssetsPath;
     manifest.images = screenshotPlan.slides.map((slide, index) => {
       const fileName = imageFileName(index, renderOptions.fileSuffix);
@@ -413,8 +412,8 @@ async function updateManifests({
         label: slide.label,
         goal: slide.goal,
         fileName,
-        url: `/output/app-store-screenshots/${currentRunId}/${devicePath}/${fileName}`,
-        path: path.join("output/app-store-screenshots", currentRunId, devicePath, fileName),
+        url: `/output/app-store-screenshots/${currentRunId}/${fileName}`,
+        path: path.join("output/app-store-screenshots", currentRunId, fileName),
         sourceScreenPath: slide.screen_path
       };
     });

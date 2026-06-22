@@ -155,7 +155,7 @@ export function buildResultImageRecords(runId, slides, options = {}) {
       title: slide.title,
       label: `Slide ${index + 1}`,
       fileName,
-      url: `${publicBase}/${runId}/apple/iphone/6.9/ja/${fileName}`
+      url: `${publicBase}/${runId}/${fileName}`
     };
   });
 }
@@ -166,7 +166,7 @@ export async function createAppStoreImageRun({ outputRoot, repoRoot, input, now 
   const baseDir = resolveAppStoreScreenshotBaseDir({ outputRoot, repoRoot });
   const workDir = resolveAppStoreScreenshotWorkDir({ outputRoot, repoRoot });
   const runWorkDir = path.join(workDir, runId);
-  const finalDir = path.join(baseDir, runId, "apple", "iphone", "6.9", "ja");
+  const finalDir = path.join(baseDir, runId);
 
   await mkdir(finalDir, { recursive: true });
 
@@ -190,7 +190,7 @@ export async function createAppStoreImageRun({ outputRoot, repoRoot, input, now 
     createdAt: now.toISOString(),
     outputRoot: APPSTORE_SCREENSHOT_OUTPUT_ROOT,
     workRoot: APPSTORE_SCREENSHOT_WORK_ROOT,
-    finalAssetsPath: path.join(APPSTORE_SCREENSHOT_OUTPUT_ROOT, runId, "apple", "iphone", "6.9", "ja"),
+    finalAssetsPath: path.join(APPSTORE_SCREENSHOT_OUTPUT_ROOT, runId),
     planPath: path.join(APPSTORE_SCREENSHOT_WORK_ROOT, runId, "screenshot-plan.json"),
     presentation: {
       layout: "horizontal-scroll"

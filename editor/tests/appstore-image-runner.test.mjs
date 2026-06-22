@@ -92,7 +92,7 @@ test("AppStore画像runnerがoutput配下へplanと最終画像を書き出す",
     const baseDir = path.join(outputRoot, "app-store-screenshots");
     const workDir = path.join(outputRoot, "app-store-screenshot-work");
     const plan = await readFile(path.join(workDir, result.run.id, "screenshot-plan.json"), "utf8");
-    const firstImage = await readFile(path.join(baseDir, result.run.id, "apple/iphone/6.9/ja/01.svg"), "utf8");
+    const firstImage = await readFile(path.join(baseDir, result.run.id, "01.svg"), "utf8");
     const latest = await readFile(path.join(workDir, "latest.json"), "utf8");
     assert.match(plan, /落ち着いた配色/);
     assert.match(firstImage, /落ち着いた配色/);

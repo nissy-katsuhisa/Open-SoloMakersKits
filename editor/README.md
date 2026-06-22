@@ -25,8 +25,8 @@ http://localhost:4173
 App Store画像生成の最終生成物は、repo直下の `output/app-store-screenshots/` に保存します。
 
 ```text
-output/app-store-screenshots/<generated-at>/apple/iphone/6.9/ja/
-output/app-store-screenshot-previews/<generated-at>/apple/iphone/6.9/ja/
+output/app-store-screenshots/<generated-at>/
+output/app-store-screenshot-previews/<generated-at>/
 output/app-store-screenshot-work/<generated-at>/
 ```
 

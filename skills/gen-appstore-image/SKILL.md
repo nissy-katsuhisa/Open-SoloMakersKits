@@ -165,14 +165,12 @@ output/
 ├── ios-page-screenshots/
 ├── app-store-screenshots/
 │   └── {generated-at}/
-│       └── apple/iphone/6.9/ja/
-│           ├── 01.png
-│           ├── 02.png
-│           └── ...
+│       ├── 01.png
+│       ├── 02.png
+│       └── ...
 ├── app-store-screenshot-previews/
 │   └── {generated-at}/
-│       └── apple/iphone/6.9/ja/
-│           └── contact-sheet.png
+│       └── contact-sheet.png
 └── app-store-screenshot-work/
     ├── source-assets/
     │   ├── app-icon.png
@@ -308,14 +306,9 @@ node scripts/validate-copy-fit.mjs \
 
 ```text
 output/app-store-screenshots/{generated-at}/
-├── apple/
-│   ├── iphone/6.9/<locale>/01.png … N.png
-│   └── ipad/13/<locale>/01.png … N.png
-└── android/
-    ├── phone/<locale>/01.png … N.png
-    ├── tablet-7/{portrait|landscape}/<locale>/...
-    ├── tablet-10/{portrait|landscape}/<locale>/...
-    └── feature-graphic/<locale>/01.png
+├── 01.png
+├── 02.png
+└── ...
 ```
 
 - environment が image generation を直接サポートするなら、screenshot plan からそのまま marketing screenshot を生成する
