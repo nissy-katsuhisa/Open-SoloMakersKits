@@ -1,5 +1,7 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { promisify } from "node:util";
 
 export const APPSTORE_SCREENSHOT_OUTPUT_ROOT = "output/app-store-screenshots";
 export const APPSTORE_SCREENSHOT_PUBLIC_BASE = "/output/app-store-screenshots";
@@ -68,6 +70,7 @@ export const DEFAULT_APPSTORE_SLIDES = [
 ];
 
 const DATA_URL_PATTERN = /^data:image\/(?:png|jpe?g|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$/;
+const execFileAsync = promisify(execFile);
 
 export function normalizeAppStoreImageInput(input = {}) {
   const colorSchemeId = COLOR_SCHEMES[input.colorSchemeId] ? input.colorSchemeId : "warm";
@@ -149,13 +152,16 @@ export function renderAppStoreScreenshotSvg(slide, colorScheme, index, total) {
 export function buildResultImageRecords(runId, slides, options = {}) {
   const publicBase = options.publicBase || APPSTORE_SCREENSHOT_PUBLIC_BASE;
   return slides.map((slide, index) => {
-    const fileName = `${String(index + 1).padStart(2, "0")}.svg`;
+    const fileName = `${String(index + 1).padStart(2, "0")}.png`;
+    const sourceSvgFileName = `${String(index + 1).padStart(2, "0")}.svg`;
     return {
       id: slide.id,
       title: slide.title,
       label: `Slide ${index + 1}`,
       fileName,
-      url: `${publicBase}/${runId}/${fileName}`
+      url: `${publicBase}/${runId}/${fileName}`,
+      path: `${APPSTORE_SCREENSHOT_OUTPUT_ROOT}/${runId}/${fileName}`,
+      sourceSvgPath: `${APPSTORE_SCREENSHOT_WORK_ROOT}/${runId}/svg/${sourceSvgFileName}`
     };
   });
 }
@@ -176,12 +182,13 @@ export async function createAppStoreImageRun({ outputRoot, repoRoot, input, now 
   await writeFile(path.join(runWorkDir, "screenshot-plan.json"), `${JSON.stringify(plan, null, 2)}\n`, "utf8");
 
   const images = buildResultImageRecords(runId, normalized.slides, { publicBase });
-  await Promise.all(
-    images.map((image, index) => {
-      const svg = renderAppStoreScreenshotSvg(normalized.slides[index], normalized.colorScheme, index, images.length);
-      return writeFile(path.join(finalDir, image.fileName), svg, "utf8");
-    })
-  );
+  for (const [index, image] of images.entries()) {
+    const svg = renderAppStoreScreenshotSvg(normalized.slides[index], normalized.colorScheme, index, images.length);
+    const svgPath = path.join(runWorkDir, "svg", `${String(index + 1).padStart(2, "0")}.svg`);
+    await mkdir(path.dirname(svgPath), { recursive: true });
+    await writeFile(svgPath, svg, "utf8");
+    await renderSvgToPng(svgPath, path.join(finalDir, image.fileName), 1320);
+  }
 
   const run = {
     id: runId,
@@ -203,6 +210,50 @@ export async function createAppStoreImageRun({ outputRoot, repoRoot, input, now 
   await writeFile(path.join(runWorkDir, "manifest.json"), `${JSON.stringify(run, null, 2)}\n`, "utf8");
   await writeFile(path.join(workDir, "latest.json"), `${JSON.stringify(run, null, 2)}\n`, "utf8");
   return { run };
+}
+
+async function renderSvgToPng(svgPath, pngPath, size) {
+  const tempDir = path.join(path.dirname(pngPath), ".tmp-render");
+  const htmlPath = path.join(tempDir, `${path.basename(svgPath)}.html`);
+  await mkdir(tempDir, { recursive: true });
+  try {
+    await writeFile(htmlPath, renderSvgPreviewHtml(svgPath, size, 2868), "utf8");
+    await execFileAsync(chromeExecutablePath(), [
+      "--headless",
+      "--disable-gpu",
+      "--no-first-run",
+      "--no-default-browser-check",
+      "--hide-scrollbars",
+      `--window-size=${size},2868`,
+      `--screenshot=${pngPath}`,
+      `file://${htmlPath}`
+    ], {
+      maxBuffer: 1024 * 1024
+    });
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+}
+
+function renderSvgPreviewHtml(svgPath, width, height) {
+  return `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    html, body { margin: 0; width: ${width}px; height: ${height}px; overflow: hidden; background: #fff; }
+    img { display: block; width: ${width}px; height: ${height}px; }
+  </style>
+</head>
+<body>
+  <img src="file://${svgPath}" alt="">
+</body>
+</html>
+`;
+}
+
+function chromeExecutablePath() {
+  return process.env.CHROME_PATH || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 }
 
 export async function readLatestAppStoreImageRun(options = {}) {
