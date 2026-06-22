@@ -22,14 +22,22 @@ http://localhost:4173
 
 ## Outputs
 
-App Store画像生成の最終生成物は、repo直下の `output/app-store-screenshots/` に保存します。
+生成物は、repo直下の `output/` にスキルごとに分けて保存します。
 
 ```text
 output/app-store-screenshots/<generated-at>/
 output/app-store-screenshot-previews/<generated-at>/
 output/app-store-screenshot-work/<generated-at>/
+output/legal-check-results/<generated-at>/
+output/legal-check-work/<generated-at>/
+output/security-check-results/<generated-at>/
+output/security-check-work/<generated-at>/
+output/app-product-summary-results/<generated-at>/
+output/app-product-summary-work/<generated-at>/
 ```
 
 `app-store-screenshots/` にはストア提出に使う生成画像だけを置きます。確認用の contact sheet は `app-store-screenshot-previews/`、plan や manifest などの作業ファイルは `app-store-screenshot-work/` に分けます。
+
+テキスト系スキルは、最終レポートやJSONだけを `*-results/<generated-at>/` に置き、latest、manifest、input などは `*-work/` に置きます。
 
 `editor/runs/` は旧仕様の保存先です。今後は使わず、`.gitignore` で除外します。

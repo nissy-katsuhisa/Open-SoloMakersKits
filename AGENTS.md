@@ -24,9 +24,15 @@ OpenSoloMakersKits
 │   ├── server.mjs
 │   └── package.json
 ├── output/
-│   └── app-store-screenshots/
-│       ├── latest.json
-│       └── runs/
+│   ├── app-store-screenshots/
+│   ├── app-store-screenshot-previews/
+│   ├── app-store-screenshot-work/
+│   ├── legal-check-results/
+│   ├── legal-check-work/
+│   ├── security-check-results/
+│   ├── security-check-work/
+│   ├── app-product-summary-results/
+│   └── app-product-summary-work/
 └── skills/
     ├── gen-appstore-image/
     │   ├── SKILL.md
@@ -54,7 +60,10 @@ OpenSoloMakersKits
 - 中核ファイルの存在確認、生成元 skill、使用する後段 skill 一覧は `scripts/ensure-app-product-context.mjs` で管理する
 - `data/app-product-context.json` を使用する skill は、使用前に `node scripts/ensure-app-product-context.mjs` を実行する
 - script が missing を返した場合は、先に `skills/app-product-summary/` を使用して生成してから後段 skill を続行する
-- `output/` はスクリーンショット、最終画像、planning file などの派生成果物置き場として使う
+- `output/` はローカル生成物置き場として使い、GitHubへ上げない
+- 最終生成物は `output/<skill-purpose>-results/<generated-at>/` または `output/app-store-screenshots/<generated-at>/` に置く
+- 確認用画像は `output/app-store-screenshot-previews/<generated-at>/` に置く
+- manifest、latest、input、plan などの作業用ファイルは `output/<skill-purpose>-work/` に置く
 
 ## Release flow
 

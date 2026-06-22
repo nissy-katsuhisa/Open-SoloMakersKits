@@ -19,6 +19,23 @@ const appStoreOutputDir = path.join(outputDir, "app-store-screenshots");
 const appStoreWorkDir = path.join(outputDir, "app-store-screenshot-work");
 const appStorePreviewDir = path.join(outputDir, "app-store-screenshot-previews");
 const appStorePlanPath = path.join(appStoreWorkDir, "current", "screenshot-plan.json");
+const FILE_RESULT_OUTPUTS = {
+  "check-native-app-legal": {
+    resultRoot: "legal-check-results",
+    workRoot: "legal-check-work",
+    resultFileName: "legal-check.md"
+  },
+  "native-app-security-check": {
+    resultRoot: "security-check-results",
+    workRoot: "security-check-work",
+    resultFileName: "security-check.md"
+  },
+  "app-product-summary": {
+    resultRoot: "app-product-summary-results",
+    workRoot: "app-product-summary-work",
+    resultFileName: "app-product-context.json"
+  }
+};
 
 const mimeTypes = new Map([
   [".html", "text/html; charset=utf-8"],
@@ -193,6 +210,11 @@ async function createRun(body) {
 
   const now = new Date();
   const runId = `${formatRunTimestamp(now)}-${slugify(skill.slug || skill.rootSlug || "skill")}`;
+  const fileResultRun = await createFileResultRun({ skill, input: body.input || {}, now, runId });
+  if (fileResultRun) {
+    return { run: fileResultRun };
+  }
+
   const runDir = path.join(runsDir, runId);
   await mkdir(runDir, { recursive: true });
 
@@ -245,6 +267,85 @@ async function getRuns() {
   return runs.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
 }
 
+async function createFileResultRun({ skill, input: rawInput, now, runId }) {
+  const skillId = skill.rootSlug || skill.slug || "";
+  const outputSpec = FILE_RESULT_OUTPUTS[skillId];
+  if (!outputSpec) return null;
+
+  const input = normalizeRunInput(rawInput || {});
+  const artifacts = buildRunArtifacts(skill, input, now);
+  const resultArtifact = selectPrimaryResultArtifact(skillId, artifacts);
+  const resultDir = path.join(outputDir, outputSpec.resultRoot, runId);
+  const workDir = path.join(outputDir, outputSpec.workRoot);
+  const runWorkDir = path.join(workDir, runId);
+  await mkdir(resultDir, { recursive: true });
+  await mkdir(runWorkDir, { recursive: true });
+
+  await writeFile(path.join(resultDir, outputSpec.resultFileName), resultArtifact.content, "utf8");
+  await writeFile(path.join(runWorkDir, "input.json"), `${JSON.stringify(input, null, 2)}\n`, "utf8");
+
+  const supportArtifacts = artifacts.filter((artifact) => artifact !== resultArtifact);
+  for (const artifact of supportArtifacts) {
+    await writeFile(path.join(runWorkDir, artifact.fileName), artifact.content, "utf8");
+  }
+
+  const resultPath = path.join("output", outputSpec.resultRoot, runId, outputSpec.resultFileName).split(path.sep).join("/");
+  const manifest = {
+    id: runId,
+    createdAt: now.toISOString(),
+    skillId,
+    skillPath: skill.path,
+    appName: input.projectName || "",
+    outputTitle: `${input.projectName ? `${input.projectName} ` : ""}${skill.name}結果`,
+    sourceAppPath: input.sourcePath || "",
+    resultPath,
+    resultUrl: urlForRepoPath(resultPath),
+    format: resultArtifact.type === "json" ? "json" : "markdown",
+    outputRoot: path.join("output", outputSpec.resultRoot).split(path.sep).join("/"),
+    workRoot: path.join("output", outputSpec.workRoot).split(path.sep).join("/"),
+    finalAssetsPath: path.join("output", outputSpec.resultRoot, runId).split(path.sep).join("/"),
+    workPath: path.join("output", outputSpec.workRoot, runId).split(path.sep).join("/"),
+    artifacts: [
+      {
+        fileName: outputSpec.resultFileName,
+        label: resultArtifact.label,
+        type: resultArtifact.type,
+        path: resultPath,
+        url: urlForRepoPath(resultPath)
+      },
+      ...supportArtifacts.map((artifact) => {
+        const artifactPath = path.join("output", outputSpec.workRoot, runId, artifact.fileName).split(path.sep).join("/");
+        return {
+          fileName: artifact.fileName,
+          label: artifact.label,
+          type: artifact.type,
+          path: artifactPath,
+          url: urlForRepoPath(artifactPath)
+        };
+      })
+    ]
+  };
+
+  await writeFile(path.join(runWorkDir, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  await writeFile(path.join(workDir, "latest.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  return {
+    ...manifest,
+    text: resultArtifact.content,
+    resultUrl: manifest.resultUrl,
+    reportUrl: manifest.resultUrl
+  };
+}
+
+function selectPrimaryResultArtifact(skillId, artifacts) {
+  if (skillId === "app-product-summary") {
+    return artifacts.find((artifact) => artifact.fileName === "app-product-context.draft.json") || artifacts[0];
+  }
+  if (skillId === "check-native-app-legal" || skillId === "native-app-security-check") {
+    return artifacts.find((artifact) => artifact.fileName === "review-checklist.md") || artifacts[0];
+  }
+  return artifacts[0];
+}
+
 async function getAppStoreImagePlan() {
   const latest = await readLatestAppStoreImageRun({ repoRoot });
   const plan = await ensureAppStoreScreenshotPlan(latest);
@@ -257,20 +358,21 @@ async function getAppStoreImagePlan() {
 
 async function readLatestSkillResult(skillId) {
   const safeSkillId = safeResultSkillId(skillId);
-  const latestPath = path.join(outputDir, safeSkillId, "latest.json");
+  const latestPath = path.join(outputDir, skillResultWorkRoot(safeSkillId), "latest.json");
   const latest = await readJsonIfExists(latestPath);
-  if (!latest) return null;
+  const fallbackLatest = latest || await readJsonIfExists(path.join(outputDir, safeSkillId, "latest.json"));
+  if (!fallbackLatest) return null;
 
-  const contentPath = latest.resultPath || latest.reportPath || latest.textPath || "";
+  const contentPath = fallbackLatest.resultPath || fallbackLatest.reportPath || fallbackLatest.textPath || "";
   const resolvedContentPath = contentPath ? resolveRepoOrAbsolutePath(contentPath) : null;
   const text = resolvedContentPath ? await readText(resolvedContentPath).catch(() => "") : "";
 
   return {
-    ...latest,
-    skillId: latest.skillId || safeSkillId,
+    ...fallbackLatest,
+    skillId: fallbackLatest.skillId || safeSkillId,
     text,
-    resultUrl: latest.resultUrl || urlForRepoPath(latest.resultPath),
-    reportUrl: latest.reportUrl || urlForRepoPath(latest.reportPath)
+    resultUrl: fallbackLatest.resultUrl || urlForRepoPath(fallbackLatest.resultPath),
+    reportUrl: fallbackLatest.reportUrl || urlForRepoPath(fallbackLatest.reportPath)
   };
 }
 
@@ -909,6 +1011,10 @@ function safeResultSkillId(value) {
     throw httpError(400, "Invalid skill result id.");
   }
   return safeValue;
+}
+
+function skillResultWorkRoot(skillId) {
+  return FILE_RESULT_OUTPUTS[skillId]?.workRoot || `${skillId}-work`;
 }
 
 function resolveRepoOrAbsolutePath(value) {
