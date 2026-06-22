@@ -1,11 +1,7 @@
 # AGENTS.md
 
 ## Project overview
-
-- このプロジェクトは、`AgentOrchestration` から同期した公開用 skill bundle を置くリポジトリ
-- 主要ユーザーは、この bundle を使ってアプリ分析、フィード画像生成、App Store / Google Play 用画像生成を行う AI エージェント
-- 重要なユースケースは、`app product context JSON` の生成、Instagram フィード投稿画像の生成、ストア用スクリーンショット生成
-- 技術スタックは Markdown ベースの skill 定義、JSON 出力、画像生成 workflow、iOS simulator を含む運用前提
+これは個人開発者向けのOSSです。AppStore画像の自動生成や法務チェックなどアプリをリリースする際に役立つスキルをまとめています。
 
 ## Architecture
 
@@ -14,9 +10,21 @@ OpenSoloMakersKits
 ├── README.md
 ├── THIRD_PARTY_NOTICES.md
 ├── data/
+│   ├── README.md
 │   └── app-product-context.json
 ├── scripts/
-│   └── ensure-app-product-context.mjs
+│   ├── ensure-app-product-context.mjs
+│   ├── run-gen-appstore-image.mjs
+│   └── lib/
+│       └── appstore-image-runner.mjs
+├── editor/
+│   ├── public/
+│   ├── server.mjs
+│   └── package.json
+├── output/
+│   └── app-store-screenshots/
+│       ├── latest.json
+│       └── runs/
 └── skills/
     ├── app-product-summary/
     │   ├── SKILL.md
@@ -40,10 +48,7 @@ OpenSoloMakersKits
 - 中核ファイルの存在確認、生成元 skill、使用する後段 skill 一覧は `scripts/ensure-app-product-context.mjs` で管理する
 - `data/app-product-context.json` を使用する skill は、使用前に `node scripts/ensure-app-product-context.mjs` を実行する
 - script が missing を返した場合は、先に `skills/app-product-summary/` を使用して生成してから後段 skill を続行する
-- 現時点で `data/app-product-context.json` を使用する後段 skill は `node scripts/ensure-app-product-context.mjs --list-consumers` で確認する
 - `output/` はスクリーンショット、最終画像、planning file などの派生成果物置き場として使う
-- `output/` は `.gitignore` に入れ、リポジトリには含めない
-- `data/images/` はフィード画像などの生成画像置き場として既存 workflow に合わせて使う
 
 ## Development commands
 

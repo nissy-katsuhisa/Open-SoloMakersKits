@@ -8,6 +8,8 @@
 
 この JSON は、Instagram フィード投稿画像生成や App Store / Google Play 用画像生成など、後段 skill が最初に読む共通入力として扱います。
 
+`data/app-product-context.json` はアプリ固有の生成物なので、`.gitignore` 対象です。公開repoには含めません。
+
 中核ファイルの管理 script:
 
 - `scripts/ensure-app-product-context.mjs`

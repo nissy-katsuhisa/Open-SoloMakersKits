@@ -1,6 +1,18 @@
 .DS_Store
 
+# Local-only documentation, checks, and GitHub operations
+/.github/
+/tests/
+/docs/*
+!/docs/
+!/docs/release-flow.md
+/editor/tests/
+
 # Generated local artifacts
 .tmp/
 data/images/
+data/app-product-context.json
+data/*.local.json
 output/
+editor/runs/
+editor/public/assets/generated/

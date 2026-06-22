@@ -278,6 +278,12 @@ node scripts/validate-copy-fit.mjs \
   - `device-top` では、phone bottom から canvas bottom までの余白を計算し、その中央に label + headline block を置く
   - `device-bottom` では、同じ phone width を保ち、必要なら下側を自然に crop する。copy と phone が重なる場合は copy を上に逃がし、phone を縮小しない
   - 調整後は contact sheet などの preview PNG を作り、全 slide を同時に目視確認できるようにする
+- code-native renderer を使う場合は、単発の手作業で終わらせず `scripts/render-appstore-screenshots.mjs` に renderer settings を渡して生成する
+  - `--phone-scale` で device の canonical scale を固定する
+  - `--phone-y <order:offset>` で slide ごとの上下調整を明示する
+  - `--headline-weight` は原則 `700` から始め、特別な理由なく `900` のような heavy weight にしない
+  - slide counter (`3/5`, `5/5` など) は既定では表示しない。ユーザーが明示した場合だけ `--show-counters` を使う
+  - renderer settings は `latest.json` と run manifest の `renderAdjustments` に残し、次回の再生成で同じ見た目を再現できるようにする
 - image-generation method が environment によって違っても、asset organization は deterministic であることを優先する
 - 最終 deliverable は次に保存する
 

@@ -5,6 +5,8 @@
 ## 構成
 
 - `skills/`: 公開用の skill bundle
+- `scripts/`: 共通入力確認と、Editorなしで実行できる生成runner
+- `editor/`: ローカルでスキルを確認・実行するための軽量Editor
 - `skill-explanation-images/`: READMEなどで参照するスキル解説画像
 
 ## 現在の公開対象
@@ -49,6 +51,23 @@
 - `../AgentOrchestration/`
 
 `AgentOrchestration` を編集元とし、このリポジトリは OSS 公開先として扱ってください。
+
+## ローカル実行
+
+EditorなしでApp Store画像生成を試す場合:
+
+```bash
+node scripts/run-gen-appstore-image.mjs --demo
+```
+
+Editorで確認する場合:
+
+```bash
+cd editor
+npm run dev
+```
+
+生成物は `output/` 配下に保存し、GitHubには含めません。
 
 ## ライセンス
 
