@@ -3,6 +3,7 @@ import path from "node:path";
 
 export const APPSTORE_SCREENSHOT_OUTPUT_ROOT = "output/app-store-screenshots";
 export const APPSTORE_SCREENSHOT_PUBLIC_BASE = "/output/app-store-screenshots";
+export const APPSTORE_SCREENSHOT_WORK_ROOT = "output/app-store-screenshot-work";
 
 export const COLOR_SCHEMES = {
   warm: {
@@ -154,7 +155,7 @@ export function buildResultImageRecords(runId, slides, options = {}) {
       title: slide.title,
       label: `Slide ${index + 1}`,
       fileName,
-      url: `${publicBase}/runs/${runId}/final-assets/apple/iphone/6.9/ja/${fileName}`
+      url: `${publicBase}/${runId}/apple/iphone/6.9/ja/${fileName}`
     };
   });
 }
@@ -163,14 +164,16 @@ export async function createAppStoreImageRun({ outputRoot, repoRoot, input, now 
   const normalized = normalizeAppStoreImageInput(input);
   const runId = `${formatRunTimestamp(now)}-gen-appstore-image`;
   const baseDir = resolveAppStoreScreenshotBaseDir({ outputRoot, repoRoot });
-  const runDir = path.join(baseDir, "runs", runId);
-  const finalDir = path.join(runDir, "final-assets", "apple", "iphone", "6.9", "ja");
+  const workDir = resolveAppStoreScreenshotWorkDir({ outputRoot, repoRoot });
+  const runWorkDir = path.join(workDir, runId);
+  const finalDir = path.join(baseDir, runId, "apple", "iphone", "6.9", "ja");
 
   await mkdir(finalDir, { recursive: true });
 
   const plan = buildScreenshotPlan(normalized);
-  await writeFile(path.join(runDir, "input.json"), `${JSON.stringify(input, null, 2)}\n`, "utf8");
-  await writeFile(path.join(runDir, "screenshot-plan.json"), `${JSON.stringify(plan, null, 2)}\n`, "utf8");
+  await mkdir(runWorkDir, { recursive: true });
+  await writeFile(path.join(runWorkDir, "input.json"), `${JSON.stringify(input, null, 2)}\n`, "utf8");
+  await writeFile(path.join(runWorkDir, "screenshot-plan.json"), `${JSON.stringify(plan, null, 2)}\n`, "utf8");
 
   const images = buildResultImageRecords(runId, normalized.slides, { publicBase });
   await Promise.all(
@@ -186,21 +189,24 @@ export async function createAppStoreImageRun({ outputRoot, repoRoot, input, now 
     status: "complete",
     createdAt: now.toISOString(),
     outputRoot: APPSTORE_SCREENSHOT_OUTPUT_ROOT,
+    workRoot: APPSTORE_SCREENSHOT_WORK_ROOT,
+    finalAssetsPath: path.join(APPSTORE_SCREENSHOT_OUTPUT_ROOT, runId, "apple", "iphone", "6.9", "ja"),
+    planPath: path.join(APPSTORE_SCREENSHOT_WORK_ROOT, runId, "screenshot-plan.json"),
     presentation: {
       layout: "horizontal-scroll"
     },
     colorScheme: normalized.colorScheme,
-    planUrl: `${publicBase}/runs/${runId}/screenshot-plan.json`,
+    planUrl: `/output/app-store-screenshot-work/${runId}/screenshot-plan.json`,
     images
   };
 
-  await writeFile(path.join(runDir, "manifest.json"), `${JSON.stringify(run, null, 2)}\n`, "utf8");
-  await writeFile(path.join(baseDir, "latest.json"), `${JSON.stringify(run, null, 2)}\n`, "utf8");
+  await writeFile(path.join(runWorkDir, "manifest.json"), `${JSON.stringify(run, null, 2)}\n`, "utf8");
+  await writeFile(path.join(workDir, "latest.json"), `${JSON.stringify(run, null, 2)}\n`, "utf8");
   return { run };
 }
 
 export async function readLatestAppStoreImageRun(options = {}) {
-  const baseDir = resolveAppStoreScreenshotBaseDir(options);
+  const baseDir = resolveAppStoreScreenshotWorkDir(options);
   try {
     return JSON.parse(await readFile(path.join(baseDir, "latest.json"), "utf8"));
   } catch (error) {
@@ -212,6 +218,11 @@ export async function readLatestAppStoreImageRun(options = {}) {
 export function resolveAppStoreScreenshotBaseDir({ outputRoot, repoRoot } = {}) {
   const root = outputRoot ? path.resolve(outputRoot) : path.join(repoRoot ? path.resolve(repoRoot) : process.cwd(), "output");
   return path.join(root, "app-store-screenshots");
+}
+
+export function resolveAppStoreScreenshotWorkDir({ outputRoot, repoRoot } = {}) {
+  const root = outputRoot ? path.resolve(outputRoot) : path.join(repoRoot ? path.resolve(repoRoot) : process.cwd(), "output");
+  return path.join(root, "app-store-screenshot-work");
 }
 
 function normalizeSlide(slide = {}, index) {

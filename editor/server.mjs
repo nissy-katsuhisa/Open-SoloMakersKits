@@ -16,7 +16,9 @@ const imageDir = path.join(repoRoot, "skill-explanation-images");
 const port = Number(process.env.PORT || 4173);
 const execFileAsync = promisify(execFile);
 const appStoreOutputDir = path.join(outputDir, "app-store-screenshots");
-const appStorePlanPath = path.join(appStoreOutputDir, "screenshot-plan.json");
+const appStoreWorkDir = path.join(outputDir, "app-store-screenshot-work");
+const appStorePreviewDir = path.join(outputDir, "app-store-screenshot-previews");
+const appStorePlanPath = path.join(appStoreWorkDir, "current", "screenshot-plan.json");
 
 const mimeTypes = new Map([
   [".html", "text/html; charset=utf-8"],
@@ -275,7 +277,7 @@ async function readLatestSkillResult(skillId) {
 async function updateAppStoreImagePreview(body) {
   const plan = normalizeScreenshotPlan(body?.plan);
   const latest = await readLatestAppStoreImageRun({ repoRoot });
-  const runId = latest?.id || `${formatRunTimestamp(new Date())}-gen-appstore-image`;
+  const runId = latest?.id || formatRunTimestamp(new Date());
   const renderAdjustments = normalizeRenderAdjustments(body?.renderAdjustments);
 
   return renderAppStoreImageSet({
@@ -288,31 +290,30 @@ async function updateAppStoreImagePreview(body) {
 
 async function saveAppStoreImageSet(body) {
   const plan = normalizeScreenshotPlan(body?.plan);
-  const latest = await readLatestAppStoreImageRun({ repoRoot });
   const now = new Date();
-  const runId = latest?.id || `${formatRunTimestamp(now)}-gen-appstore-image`;
+  const runId = formatRunTimestamp(now);
   const renderAdjustments = normalizeRenderAdjustments(body?.renderAdjustments);
-  const fileSuffix = formatMinuteTimestamp(now);
 
   return renderAppStoreImageSet({
     plan,
     runId,
     renderAdjustments,
-    persistPlan: true,
-    fileSuffix
+    persistPlan: true
   });
 }
 
-async function renderAppStoreImageSet({ plan, runId, renderAdjustments, persistPlan, fileSuffix = "" }) {
+async function renderAppStoreImageSet({ plan, runId, renderAdjustments, persistPlan }) {
   await mkdir(appStoreOutputDir, { recursive: true });
+  await mkdir(appStoreWorkDir, { recursive: true });
+  await mkdir(appStorePreviewDir, { recursive: true });
   plan = await materializeScreenshotUploads(plan, runId);
 
   const planPath = persistPlan
     ? appStorePlanPath
-    : path.join(appStoreOutputDir, "preview", "screenshot-plan.preview.json");
+    : path.join(appStoreWorkDir, "preview", "screenshot-plan.preview.json");
   await writeJson(planPath, plan);
 
-  const runPlanPath = path.join(appStoreOutputDir, "runs", runId, "screenshot-plan.json");
+  const runPlanPath = path.join(appStoreWorkDir, runId, "screenshot-plan.json");
   if (persistPlan) {
     await mkdir(path.dirname(runPlanPath), { recursive: true });
     await writeJson(runPlanPath, plan);
@@ -334,6 +335,10 @@ async function renderAppStoreImageSet({ plan, runId, renderAdjustments, persistP
     toRepoRelative(planPath),
     "--output-root",
     "output/app-store-screenshots",
+    "--preview-root",
+    "output/app-store-screenshot-previews",
+    "--manifest-root",
+    "output/app-store-screenshot-work",
     "--run-id",
     runId,
     "--phone-scale",
@@ -344,23 +349,22 @@ async function renderAppStoreImageSet({ plan, runId, renderAdjustments, persistP
   if (!renderAdjustments.removedSlideCounters) {
     renderArgs.push("--show-counters");
   }
-  if (fileSuffix) {
-    renderArgs.push("--file-suffix", fileSuffix);
-  }
   Object.entries(renderAdjustments.phoneYOffsetBySlide).forEach(([order, offset]) => {
     renderArgs.push("--phone-y", `${order}:${offset}`);
   });
 
   await runNodeScript(renderArgs);
 
-  const reportPath = path.join(appStoreOutputDir, "screenshot-plan.copy-fit-report.json");
-  const runReportPath = path.join(appStoreOutputDir, "runs", runId, "screenshot-plan.copy-fit-report.json");
+  const reportPath = path.join(appStoreWorkDir, "current", "screenshot-plan.copy-fit-report.json");
+  const validatorReportPath = path.join(appStoreWorkDir, "screenshot-plan.copy-fit-report.json");
+  const runReportPath = path.join(appStoreWorkDir, runId, "screenshot-plan.copy-fit-report.json");
   if (persistPlan) {
     await mkdir(path.dirname(runReportPath), { recursive: true });
     try {
-      await writeFile(runReportPath, await readFile(reportPath));
+      const report = await readFile(reportPath).catch(() => readFile(validatorReportPath));
+      await writeFile(runReportPath, report);
     } catch {
-      // The renderer still succeeds without the report copy, but the canonical report should exist after validation.
+      // The renderer still succeeds without the report copy.
     }
   }
 
@@ -368,7 +372,6 @@ async function renderAppStoreImageSet({ plan, runId, renderAdjustments, persistP
     plan,
     planPath: toRepoRelative(appStorePlanPath),
     renderAdjustments,
-    savedFileSuffix: fileSuffix || "",
     run: await readLatestAppStoreImageRun({ repoRoot })
   };
 }
@@ -421,7 +424,7 @@ function buildDefaultScreenshotPlan(latest) {
         order,
         goal: image?.goal || `slide-${order}`,
         screen_slug: image?.id || `slide-${order}`,
-        screen_path: image?.sourceScreenPath || `output/app-store-screenshots/source-assets/screenshots/apple/iphone/ja/${String(order).padStart(2, "0")}.png`,
+        screen_path: image?.sourceScreenPath || `output/app-store-screenshot-work/source-assets/screenshots/apple/iphone/ja/${String(order).padStart(2, "0")}.png`,
         headline: image?.title || `スクリーンショット ${order}`,
         label: image?.label || `SLIDE ${order}`,
         visual_tone: "app-store-ready",
@@ -474,7 +477,7 @@ async function materializeScreenshotUploads(plan, runId) {
       const order = String(nextSlide.order || slides.length + 1).padStart(2, "0");
       const fileBase = safeFileSegment(path.basename(upload.name, path.extname(upload.name)) || nextSlide.screen_slug || `screen-${order}`);
       const fileName = `${order}-${fileBase}${extensionForMime(image.mime, upload.name)}`;
-      const outputPath = path.join(appStoreOutputDir, "source-assets", "uploads", safeRunId, fileName);
+      const outputPath = path.join(appStoreWorkDir, "source-assets", "uploads", safeRunId, fileName);
       await mkdir(path.dirname(outputPath), { recursive: true });
       await writeFile(outputPath, image.buffer);
       nextSlide.screen_path = toRepoRelative(outputPath);

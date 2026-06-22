@@ -2,7 +2,11 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createAppStoreImageRun, resolveAppStoreScreenshotBaseDir } from "./lib/appstore-image-runner.mjs";
+import {
+  createAppStoreImageRun,
+  resolveAppStoreScreenshotBaseDir,
+  resolveAppStoreScreenshotWorkDir
+} from "./lib/appstore-image-runner.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = parseArgs(process.argv.slice(2));
@@ -25,10 +29,12 @@ if (args.titles.length > 0) {
 
 const { run } = await createAppStoreImageRun({ repoRoot, input });
 const baseDir = resolveAppStoreScreenshotBaseDir({ repoRoot });
+const workDir = resolveAppStoreScreenshotWorkDir({ repoRoot });
 
 console.log(`AppStore image run complete: ${run.id}`);
-console.log(`Latest manifest: ${path.join(baseDir, "latest.json")}`);
-console.log(`Run directory: ${path.join(baseDir, "runs", run.id)}`);
+console.log(`Generated images: ${path.join(baseDir, run.id)}`);
+console.log(`Latest manifest: ${path.join(workDir, "latest.json")}`);
+console.log(`Work directory: ${path.join(workDir, run.id)}`);
 for (const image of run.images) {
   console.log(`- ${image.title}: ${image.url}`);
 }

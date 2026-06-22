@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { cp, mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
@@ -16,6 +16,8 @@ try {
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const defaultOutputRoot = "output/app-store-screenshots";
+const defaultPreviewRoot = "output/app-store-screenshot-previews";
+const defaultManifestRoot = "output/app-store-screenshot-work";
 const devicePath = path.join("apple", "iphone", "6.9", "ja");
 
 const defaultBackgrounds = [
@@ -34,15 +36,18 @@ const defaultLayout = {
 
 const options = parseArgs(process.argv.slice(2));
 const outputRoot = path.resolve(repoRoot, options.outputRoot);
+const previewRoot = path.resolve(repoRoot, options.previewRoot);
+const manifestRoot = path.resolve(repoRoot, options.manifestRoot);
 const planPath = path.resolve(repoRoot, options.plan);
 const plan = JSON.parse(await readFile(planPath, "utf8"));
-const runId = options.runId || await readLatestRunId(outputRoot) || formatRunTimestamp(new Date());
-const runDir = path.join(outputRoot, "runs", runId);
-const canonicalFinalDir = path.join(outputRoot, "final-assets", devicePath);
-const runFinalDir = path.join(runDir, "final-assets", devicePath);
+const runId = options.runId || await readLatestRunId(manifestRoot) || formatRunTimestamp(new Date());
+const finalDir = path.join(outputRoot, runId, devicePath);
+const previewDir = path.join(previewRoot, runId, devicePath);
+const runManifestDir = path.join(manifestRoot, runId);
 
-await mkdir(canonicalFinalDir, { recursive: true });
-await mkdir(runFinalDir, { recursive: true });
+await mkdir(finalDir, { recursive: true });
+await mkdir(previewDir, { recursive: true });
+await mkdir(runManifestDir, { recursive: true });
 
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1320, height: 2868 }, deviceScaleFactor: 1 });
@@ -61,8 +66,7 @@ for (const [index, slide] of plan.slides.entries()) {
 
   await page.setViewportSize({ width: 1320, height: 2868 });
   await page.setContent(html, { waitUntil: "networkidle" });
-  await page.screenshot({ path: path.join(canonicalFinalDir, fileName), type: "png", fullPage: false });
-  await cp(path.join(canonicalFinalDir, fileName), path.join(runFinalDir, fileName));
+  await page.screenshot({ path: path.join(finalDir, fileName), type: "png", fullPage: false });
 }
 
 const contactItems = [];
@@ -70,28 +74,31 @@ for (const [index, slide] of plan.slides.entries()) {
   const fileName = imageFileName(index, options.fileSuffix);
   contactItems.push({
     label: `${String(index + 1).padStart(2, "0")} ${slide.label || slide.screen_slug}`,
-    url: await imageDataUrl(path.join(canonicalFinalDir, fileName))
+    url: await imageDataUrl(path.join(finalDir, fileName))
   });
 }
 const contactSheetName = contactSheetFileName(options.fileSuffix);
-await renderContactSheet(page, contactItems, path.join(canonicalFinalDir, contactSheetName));
-await cp(path.join(canonicalFinalDir, contactSheetName), path.join(runFinalDir, contactSheetName));
+await renderContactSheet(page, contactItems, path.join(previewDir, contactSheetName));
 await browser.close();
 
 await updateManifests({
   outputRoot,
-  runDir,
+  previewRoot,
+  manifestRoot,
+  runManifestDir,
   runId,
   plan,
   options
 });
 
-console.log(`Rendered ${plan.slides.length} screenshots to ${path.relative(repoRoot, canonicalFinalDir)}`);
+console.log(`Rendered ${plan.slides.length} screenshots to ${path.relative(repoRoot, finalDir)}`);
 
 function parseArgs(values) {
   const parsed = {
     plan: path.join(defaultOutputRoot, "screenshot-plan.json"),
     outputRoot: defaultOutputRoot,
+    previewRoot: defaultPreviewRoot,
+    manifestRoot: defaultManifestRoot,
     runId: "",
     phoneScale: 1.12,
     headlineWeight: 700,
@@ -104,6 +111,8 @@ function parseArgs(values) {
     const value = values[index];
     if (value === "--plan") parsed.plan = values[++index] || parsed.plan;
     else if (value === "--output-root") parsed.outputRoot = values[++index] || parsed.outputRoot;
+    else if (value === "--preview-root") parsed.previewRoot = values[++index] || parsed.previewRoot;
+    else if (value === "--manifest-root") parsed.manifestRoot = values[++index] || parsed.manifestRoot;
     else if (value === "--run-id") parsed.runId = values[++index] || "";
     else if (value === "--phone-scale") parsed.phoneScale = Number(values[++index] || parsed.phoneScale);
     else if (value === "--headline-weight") parsed.headlineWeight = Number(values[++index] || parsed.headlineWeight);
@@ -142,7 +151,9 @@ function printHelp() {
 Options:
   --plan <path>             screenshot-plan.json path
   --output-root <path>      output root, default output/app-store-screenshots
-  --run-id <id>             run id to update; defaults to latest.json id
+  --preview-root <path>     confirmation image root, default output/app-store-screenshot-previews
+  --manifest-root <path>    manifest/work root, default output/app-store-screenshot-work
+  --run-id <id>             datetime output folder id; defaults to latest.json id
   --phone-scale <number>    phone width scale, default 1.12
   --headline-weight <num>   headline font weight, default 700
   --file-suffix <suffix>    append suffix to PNG names, e.g. 01-20260619-2015.png
@@ -169,9 +180,9 @@ function contactSheetFileName(fileSuffix = "") {
   return fileSuffix ? `contact-sheet-${fileSuffix}.png` : "contact-sheet.png";
 }
 
-async function readLatestRunId(outputRootPath) {
+async function readLatestRunId(manifestRootPath) {
   try {
-    const latest = JSON.parse(await readFile(path.join(outputRootPath, "latest.json"), "utf8"));
+    const latest = JSON.parse(await readFile(path.join(manifestRootPath, "latest.json"), "utf8"));
     return latest.id || "";
   } catch (error) {
     if (error?.code === "ENOENT") return "";
@@ -350,10 +361,18 @@ async function renderContactSheet(page, items, outputPath) {
   await page.screenshot({ path: outputPath, type: "png", fullPage: false });
 }
 
-async function updateManifests({ outputRoot: outputRootPath, runDir: runDirectory, runId: currentRunId, plan: screenshotPlan, options: renderOptions }) {
+async function updateManifests({
+  outputRoot: outputRootPath,
+  previewRoot: previewRootPath,
+  manifestRoot: manifestRootPath,
+  runManifestDir: runManifestDirectory,
+  runId: currentRunId,
+  plan: screenshotPlan,
+  options: renderOptions
+}) {
   const manifestPaths = [
-    path.join(outputRootPath, "latest.json"),
-    path.join(runDirectory, "manifest.json")
+    path.join(manifestRootPath, "latest.json"),
+    path.join(runManifestDirectory, "manifest.json")
   ];
 
   for (const manifestPath of manifestPaths) {
@@ -372,8 +391,8 @@ async function updateManifests({ outputRoot: outputRootPath, runDir: runDirector
     manifest.fileSuffix = renderOptions.fileSuffix || "";
     manifest.contactSheet = {
       fileName: contactSheetFileName(renderOptions.fileSuffix),
-      url: `/output/app-store-screenshots/runs/${currentRunId}/final-assets/${devicePath}/${contactSheetFileName(renderOptions.fileSuffix)}`,
-      canonicalUrl: `/output/app-store-screenshots/final-assets/${devicePath}/${contactSheetFileName(renderOptions.fileSuffix)}`
+      path: path.join("output/app-store-screenshot-previews", currentRunId, devicePath, contactSheetFileName(renderOptions.fileSuffix)),
+      url: `/output/app-store-screenshot-previews/${currentRunId}/${devicePath}/${contactSheetFileName(renderOptions.fileSuffix)}`
     };
     manifest.renderAdjustments = {
       headlineWeight: renderOptions.headlineWeight,
@@ -381,8 +400,11 @@ async function updateManifests({ outputRoot: outputRootPath, runDir: runDirector
       phoneYOffsetBySlide: renderOptions.phoneYOffsetBySlide,
       removedSlideCounters: !renderOptions.showCounters
     };
-    manifest.finalAssetsPath = manifest.finalAssetsPath || path.join("output/app-store-screenshots/runs", currentRunId, "final-assets", devicePath);
-    manifest.canonicalFinalAssetsPath = path.join("output/app-store-screenshots/final-assets", devicePath);
+    manifest.outputRoot = "output/app-store-screenshots";
+    manifest.previewRoot = "output/app-store-screenshot-previews";
+    manifest.workRoot = "output/app-store-screenshot-work";
+    manifest.finalAssetsPath = path.join("output/app-store-screenshots", currentRunId, devicePath);
+    delete manifest.canonicalFinalAssetsPath;
     manifest.images = screenshotPlan.slides.map((slide, index) => {
       const fileName = imageFileName(index, renderOptions.fileSuffix);
       return {
@@ -391,8 +413,8 @@ async function updateManifests({ outputRoot: outputRootPath, runDir: runDirector
         label: slide.label,
         goal: slide.goal,
         fileName,
-        url: `/output/app-store-screenshots/runs/${currentRunId}/final-assets/${devicePath}/${fileName}`,
-        canonicalUrl: `/output/app-store-screenshots/final-assets/${devicePath}/${fileName}`,
+        url: `/output/app-store-screenshots/${currentRunId}/${devicePath}/${fileName}`,
+        path: path.join("output/app-store-screenshots", currentRunId, devicePath, fileName),
         sourceScreenPath: slide.screen_path
       };
     });

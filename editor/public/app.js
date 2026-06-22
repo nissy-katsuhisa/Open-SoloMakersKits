@@ -580,7 +580,7 @@ function renderAppStoreParameterPanel(execution) {
   header.append(title, closeButton);
   const planPath = document.createElement("small");
   planPath.className = "appstore-plan-path";
-  planPath.textContent = editorState.planPath || "output/app-store-screenshots/screenshot-plan.json";
+  planPath.textContent = editorState.planPath || "output/app-store-screenshot-work/current/screenshot-plan.json";
   panel.append(header, planPath);
 
   if (state.appStorePlanError) {
@@ -837,7 +837,7 @@ function appStoreImageExecution() {
 function createAppStoreImageEditorState(execution, planResult = {}) {
   const plan = planResult.plan || buildDefaultAppStorePlanFromExecution(execution);
   return {
-    planPath: planResult.planPath || "output/app-store-screenshots/screenshot-plan.json",
+    planPath: planResult.planPath || "output/app-store-screenshot-work/current/screenshot-plan.json",
     plan: cloneAppStorePlan(plan),
     renderAdjustments: normalizeEditorRenderAdjustments(planResult.renderAdjustments)
   };
@@ -870,7 +870,7 @@ function buildDefaultAppStorePlanFromExecution(execution) {
       order: index + 1,
       goal: `slide-${index + 1}`,
       screen_slug: slide.id || `slide-${index + 1}`,
-      screen_path: `output/app-store-screenshots/source-assets/screenshots/apple/iphone/ja/${String(index + 1).padStart(2, "0")}.png`,
+      screen_path: `output/app-store-screenshot-work/source-assets/screenshots/apple/iphone/ja/${String(index + 1).padStart(2, "0")}.png`,
       headline: slide.title || `スクリーンショット ${index + 1}`,
       label: `SLIDE ${index + 1}`,
       visual_tone: "",
