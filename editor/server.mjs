@@ -81,7 +81,7 @@ const server = createServer(async (request, response) => {
     }
 
     if (requestUrl.pathname === "/api/appstore-image/latest" && request.method === "GET") {
-      await sendJson(response, { run: await readLatestAppStoreImageRun({ repoRoot }) });
+      await sendJson(response, { run: await readDisplayAppStoreImageRun() });
       return;
     }
 
@@ -353,6 +353,88 @@ async function getAppStoreImagePlan() {
     plan,
     planPath: toRepoRelative(appStorePlanPath),
     renderAdjustments: normalizeRenderAdjustments(latest?.renderAdjustments)
+  };
+}
+
+async function readDisplayAppStoreImageRun() {
+  const latest = await readLatestAppStoreImageRun({ repoRoot });
+  const currentPlan = await readJsonIfExists(appStorePlanPath);
+  if (!currentPlan) return latest;
+
+  if (await appStoreRunMatchesPlan(latest, currentPlan)) {
+    return enrichAppStoreRunForPlan(latest, currentPlan);
+  }
+
+  const matchingRun = await findAppStoreRunForPlan(currentPlan);
+  return matchingRun ? enrichAppStoreRunForPlan(matchingRun, currentPlan) : latest;
+}
+
+async function findAppStoreRunForPlan(plan) {
+  const entries = await readdir(appStoreWorkDir, { withFileTypes: true }).catch(() => []);
+  const candidates = [];
+
+  for (const entry of entries) {
+    if (!entry.isDirectory() || ["current", "preview", "source-assets"].includes(entry.name)) continue;
+
+    const runPlanPath = path.join(appStoreWorkDir, entry.name, "screenshot-plan.json");
+    const runPlan = await readJsonIfExists(runPlanPath);
+    if (!sameAppStorePlan(runPlan, plan)) continue;
+
+    const manifestPath = path.join(appStoreWorkDir, entry.name, "manifest.json");
+    const manifest = await readJsonIfExists(manifestPath);
+    if (manifest) candidates.push(manifest);
+  }
+
+  return candidates.sort((a, b) => String(b.createdAt || b.generatedAt || b.id).localeCompare(String(a.createdAt || a.generatedAt || a.id)))[0] || null;
+}
+
+async function appStoreRunMatchesPlan(run, plan) {
+  if (!run?.id) return false;
+  const candidatePaths = [
+    run.planPath,
+    path.join("output/app-store-screenshot-work", run.id, "screenshot-plan.json")
+  ].filter(Boolean);
+
+  for (const candidate of candidatePaths) {
+    const runPlan = await readJsonIfExists(resolveRepoOrAbsolutePath(candidate));
+    if (sameAppStorePlan(runPlan, plan)) return true;
+  }
+
+  return false;
+}
+
+function sameAppStorePlan(a, b) {
+  if (!a || !b) return false;
+  return JSON.stringify(appStorePlanSignature(a)) === JSON.stringify(appStorePlanSignature(b));
+}
+
+function appStorePlanSignature(plan) {
+  return {
+    appName: String(plan.app_name || plan.appName || ""),
+    slides: (plan.slides || []).map((slide, index) => ({
+      order: Number(slide.order || index + 1),
+      screenSlug: String(slide.screen_slug || slide.id || ""),
+      screenPath: String(slide.screen_path || ""),
+      headline: String(slide.headline || slide.title || ""),
+      label: String(slide.label || ""),
+      layout: String(slide.layout || "")
+    }))
+  };
+}
+
+function enrichAppStoreRunForPlan(run, plan) {
+  if (!run) return run;
+  const slides = plan?.slides || [];
+  return {
+    ...run,
+    images: (run.images || []).map((image, index) => ({
+      ...image,
+      id: image.id || slides[index]?.screen_slug || `slide-${index + 1}`,
+      title: image.title || String(slides[index]?.headline || "").replace(/\n/g, " "),
+      label: image.label || slides[index]?.label || `SLIDE ${index + 1}`,
+      goal: image.goal || slides[index]?.goal,
+      sourceScreenPath: image.sourceScreenPath || slides[index]?.screen_path
+    }))
   };
 }
 
