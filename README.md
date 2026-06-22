@@ -1,6 +1,6 @@
 # OpenSoloMakersKits
 
-`AgentOrchestration` から同期した、OSS として公開可能な skill bundle を置くためのリポジトリです。
+個人開発者がアプリをリリースするときに役立つ skill bundle をまとめた OSS リポジトリです。
 
 ## 構成
 
@@ -38,14 +38,6 @@
 - `skills/app-product-summary/`: アプリのコードベースから、プロダクト理解とブランド理解をまとめた `data/app-product-context.json` を出力する skill
   - 種別: 単体 skill
   - 解説画像: [`skill-explanation-images/app-product-summary-flow.png`](skill-explanation-images/app-product-summary-flow.png)
-
-## ローカルでのソースオブトゥルース
-
-各 skill の編集元は次の場所にあります。
-
-- `../AgentOrchestration/`
-
-`AgentOrchestration` を編集元とし、このリポジトリは OSS 公開先として扱ってください。
 
 ## リリース運用
 
