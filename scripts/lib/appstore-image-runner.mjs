@@ -161,7 +161,7 @@ export function buildResultImageRecords(runId, slides, options = {}) {
       fileName,
       url: `${publicBase}/${runId}/${fileName}`,
       path: `${APPSTORE_SCREENSHOT_OUTPUT_ROOT}/${runId}/${fileName}`,
-      sourceSvgPath: `${APPSTORE_SCREENSHOT_WORK_ROOT}/${runId}/svg/${sourceSvgFileName}`
+      sourceSvgPath: `${APPSTORE_SCREENSHOT_WORK_ROOT}/source-assets/generated-svg/${runId}/${sourceSvgFileName}`
     };
   });
 }
@@ -184,7 +184,7 @@ export async function createAppStoreImageRun({ outputRoot, repoRoot, input, now 
   const images = buildResultImageRecords(runId, normalized.slides, { publicBase });
   for (const [index, image] of images.entries()) {
     const svg = renderAppStoreScreenshotSvg(normalized.slides[index], normalized.colorScheme, index, images.length);
-    const svgPath = path.join(runWorkDir, "svg", `${String(index + 1).padStart(2, "0")}.svg`);
+    const svgPath = path.join(workDir, "source-assets", "generated-svg", runId, `${String(index + 1).padStart(2, "0")}.svg`);
     await mkdir(path.dirname(svgPath), { recursive: true });
     await writeFile(svgPath, svg, "utf8");
     await renderSvgToPng(svgPath, path.join(finalDir, image.fileName), 1320);
