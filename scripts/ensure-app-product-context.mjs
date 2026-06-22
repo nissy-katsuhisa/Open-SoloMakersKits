@@ -10,7 +10,6 @@ const contract = {
   contextPath: "data/app-product-context.json",
   producerSkill: "skills/app-product-summary/",
   consumerSkills: [
-    "skills/gen-feed-posts/instagram-feed-image-generation/",
     "skills/gen-appstore-image/"
   ],
   requiredKeys: [

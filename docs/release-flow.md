@@ -18,10 +18,10 @@
 
 初回は次の4つだけを `main` に残す。
 
-- `skills/app-product-summary/`
 - `skills/gen-appstore-image/`
 - `skills/check-native-app-legal/`
 - `skills/native-app-security-check/`
+- `skills/app-product-summary/`
 
 ## リリース手順
 

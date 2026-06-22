@@ -136,7 +136,7 @@ async function getHomeData() {
       images: images.length,
       bundles: skills.filter((skill) => skill.kind !== "skill").length
     },
-    heroImage: "/assets/skills/gen-feed-posts/thumbnail-youtube.png",
+    heroImage: "/assets/skills/gen-appstore-image/thumbnail-youtube.png",
     images: images.map((file) => ({
       name: file,
       url: imageUrl(file)
@@ -594,16 +594,6 @@ function buildRunArtifacts(skill, input, now) {
     lines.push("## Generated");
     lines.push("");
     lines.push("- `app-product-context.draft.json`");
-  } else if (skillName.includes("gen-feed-posts") || skillName.includes("instagram-feed")) {
-    artifacts.push({
-      fileName: "feed-prompt.draft.json",
-      label: "Feed prompt draft",
-      type: "json",
-      content: `${JSON.stringify(buildFeedPrompt(input, now), null, 2)}\n`
-    });
-    lines.push("## Generated");
-    lines.push("");
-    lines.push("- `feed-prompt.draft.json`");
   } else if (skillName.includes("appstore")) {
     artifacts.push({
       fileName: "store-screenshot-brief.draft.json",
@@ -671,41 +661,6 @@ function buildAppProductContext(input, now) {
     user_pains: toList(input.pains).slice(0, 6),
     catchcopies: toList(input.catchcopy || input.goal).slice(0, 5),
     tone_keywords: toList(input.tone || "clear, practical, creator-focused")
-  };
-}
-
-function buildFeedPrompt(input, now) {
-  const productName = input.projectName || "Untitled app";
-  const catchcopy = input.catchcopy || input.goal || `${productName}の魅力を伝える`;
-  return {
-    schema: "feed-prompt/local-draft",
-    generated_at: now.toISOString(),
-    product_name: productName,
-    slide_count: 3,
-    slides: [
-      {
-        role: "cover",
-        typography: {
-          headline: catchcopy,
-          subline: input.audience || "個人開発アプリを伸ばしたい人へ"
-        }
-      },
-      {
-        role: "features",
-        typography: {
-          headline: "できること",
-          items: toList(input.features || input.notes).slice(0, 4)
-        }
-      },
-      {
-        role: "benefits",
-        typography: {
-          headline: "使う理由",
-          items: toList(input.benefits || input.goal).slice(0, 4)
-        }
-      }
-    ],
-    visual_tone: toList(input.tone || "clean, practical, app-native")
   };
 }
 
@@ -847,7 +802,7 @@ function findSkillImage(slug, rootSlug) {
 
 function getSkillKind(relativePath, rootSlug, fileName) {
   if (fileName === "workflow.md") return "workflow";
-  if (rootSlug === "gen-appstore-image" || rootSlug === "gen-feed-posts") return "bundle";
+  if (rootSlug === "gen-appstore-image") return "bundle";
   if (relativePath.includes("/skills/")) return "bundle skill";
   return "skill";
 }

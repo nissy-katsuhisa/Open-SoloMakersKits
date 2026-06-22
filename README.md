@@ -7,27 +7,19 @@
 - `skills/`: 公開用の skill bundle
 - `scripts/`: 共通入力確認と、Editorなしで実行できる生成runner
 - `editor/`: ローカルでスキルを確認・実行するための軽量Editor
+- `docs/`: リリースやブランチ運用などの公開作業メモ
 - `skill-explanation-images/`: READMEなどで参照するスキル解説画像
 
 ## 現在の公開対象
 
-- `skills/app-product-summary/`: アプリのコードベースから、プロダクト理解とブランド理解をまとめた `data/app-product-context.json` を出力する skill
-  - 種別: 単体 skill
-  - 解説画像: [`skill-explanation-images/app-product-summary-flow.png`](skill-explanation-images/app-product-summary-flow.png)
+- `skills/gen-appstore-image/`: App Store / Google Play 用スクリーンショット画像を、アプリ理解・ブランド抽出・必要なスクリーンショット取得を踏まえて生成する skill bundle
+  - 種別: skill bundle（入口は `skills/gen-appstore-image/SKILL.md`）
+  - 解説画像: [`skill-explanation-images/gen-appstore-image-flow.png`](skill-explanation-images/gen-appstore-image-flow.png)
 - `skills/check-native-app-legal/`: iOS、Android、その他ネイティブアプリの法務・ストア審査リスクを、コード・公開ページ・人間レビューの3レーンで確認する skill
   - 種別: 単体 skill
   - 更新日: 2026-06-12
   - 解説画像: [`skill-explanation-images/check-native-app-legal-flow.png`](skill-explanation-images/check-native-app-legal-flow.png)
   - 注意: このskillは法務確認の一次整理を補助するもので、法的助言ではありません。確実な対策が必要な場合は、自分で最新情報を調べ、必要に応じて弁護士などの専門家に確認してください。
-- `skills/gen-appstore-image/`: App Store / Google Play 用スクリーンショット画像を、アプリ理解・ブランド抽出・必要なスクリーンショット取得を踏まえて生成する skill bundle
-  - 種別: skill bundle（入口は `skills/gen-appstore-image/SKILL.md`）
-  - 解説画像: [`skill-explanation-images/gen-appstore-image-flow.png`](skill-explanation-images/gen-appstore-image-flow.png)
-- `skills/gen-feed-posts/`: `data/app-product-context.json` を共通入力として Instagram フィード投稿画像を生成する skill bundle
-  - 種別: bundle（内部に `instagram-feed-image-generation` を含む。app product context がない場合は `skills/app-product-summary/` で先に生成）
-  - 解説画像: [`skill-explanation-images/gen-feed-posts-flow.png`](skill-explanation-images/gen-feed-posts-flow.png)
-- `skills/gen-promotion-video/`: JSON 設定から Remotion のアプリプロモーション動画を作成する skill
-  - 種別: 単体 skill
-  - 解説画像: [`skill-explanation-images/gen-promotion-video-flow.png`](skill-explanation-images/gen-promotion-video-flow.png)
 - `skills/native-app-security-check/`: iOS、Android、その他ネイティブアプリのコード・設定・利用サービスを読み、セキュリティ確認項目を整理する skill
   - 種別: 単体 skill
   - 更新日: 2026-06-12
@@ -43,6 +35,9 @@
     - Cartography: `0.137.0`
     - Fix Inventory: `4.2.0`
   - 注意: このskillはコード・設定・利用サービスの棚卸しを補助するもので、これだけでセキュリティが完成するわけではありません。実クラウド設定、RLS/認可、鍵運用、ログ、実機確認、ペンテストは別途確認してください。
+- `skills/app-product-summary/`: アプリのコードベースから、プロダクト理解とブランド理解をまとめた `data/app-product-context.json` を出力する skill
+  - 種別: 単体 skill
+  - 解説画像: [`skill-explanation-images/app-product-summary-flow.png`](skill-explanation-images/app-product-summary-flow.png)
 
 ## ローカルでのソースオブトゥルース
 
@@ -51,6 +46,10 @@
 - `../AgentOrchestration/`
 
 `AgentOrchestration` を編集元とし、このリポジトリは OSS 公開先として扱ってください。
+
+## リリース運用
+
+スキルは機能ごとに段階的に公開します。ブランチの使い分けと公開手順は [docs/release-flow.md](docs/release-flow.md) を参照してください。
 
 ## ローカル実行
 

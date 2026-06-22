@@ -1,7 +1,0 @@
-interface:
-  display_name: "Instagram Feed Image Generation"
-  short_description: "Instagramフィード投稿画像を作る案件用スキル"
-  default_prompt: "Use $instagram-feed-image-generation with an app info file and an optional reference prompt JSON to generate a 3-image square Instagram carousel."
-
-policy:
-  allow_implicit_invocation: true

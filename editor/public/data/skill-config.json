@@ -49,86 +49,6 @@
   },
   "skills": [
     {
-      "id": "gen-feed-posts",
-      "title": "Instagram投稿生成",
-      "registryTitle": "インスタ投稿自動作成スキル",
-      "description": "アプリ情報からInstagramフィード向けの3枚カルーセル画像を生成し、投稿に使える形へ整えます。",
-      "skillPath": "skills/gen-feed-posts/instagram-feed-image-generation/SKILL.md",
-      "thumbnail": {
-        "label": "YouTube thumbnail",
-        "localPath": "/assets/skills/gen-feed-posts/thumbnail-youtube.png"
-      },
-      "youtube": {
-        "url": "https://youtu.be/X8tR7x9dtQ8",
-        "embedUrl": "https://www.youtube.com/embed/X8tR7x9dtQ8"
-      },
-      "execution": {
-        "type": "generation",
-        "displayType": "generated-gallery",
-        "outputTitle": "Instagram投稿生成結果",
-        "loadingLabel": "生成中...",
-        "images": []
-      }
-    },
-    {
-      "id": "gen-promotion-video",
-      "title": "15秒PR動画生成",
-      "registryTitle": "プロモーション動画生成スキル",
-      "description": "構造化JSONからRemotion製のアプリプロモーション動画を作り、素材や文言を反映します。",
-      "skillPath": "skills/gen-promotion-video/SKILL.md",
-      "thumbnail": {
-        "label": "YouTube thumbnail",
-        "localPath": "/assets/skills/gen-promotion-video/thumbnail-youtube.png"
-      },
-      "youtube": {
-        "url": "https://youtu.be/JEtoeROZ9oc",
-        "embedUrl": "https://www.youtube.com/embed/JEtoeROZ9oc"
-      },
-      "execution": {
-        "type": "editing",
-        "displayType": "split-editor",
-        "outputTitle": "15秒PR動画エディター",
-        "loadingLabel": "生成中...",
-        "preview": {
-          "kind": "video",
-          "title": "Launch-ready PR clip",
-          "subtitle": "アプリの価値を15秒で伝える動画案",
-          "accentColor": "#ff3b25",
-          "notes": ["0-3秒: 課題提示", "4-10秒: 機能紹介", "11-15秒: CTA"]
-        },
-        "parameters": [
-          {
-            "id": "duration",
-            "label": "動画尺",
-            "type": "select",
-            "value": "15秒",
-            "options": ["10秒", "15秒", "30秒"]
-          },
-          {
-            "id": "tone",
-            "label": "トーン",
-            "type": "select",
-            "value": "スピード感",
-            "options": ["スピード感", "落ち着き", "高級感"]
-          },
-          {
-            "id": "accentColor",
-            "label": "アクセントカラー",
-            "type": "color",
-            "value": "#ff3b25"
-          },
-          {
-            "id": "captionDensity",
-            "label": "字幕量",
-            "type": "range",
-            "min": 1,
-            "max": 5,
-            "value": 3
-          }
-        ]
-      }
-    },
-    {
       "id": "gen-appstore-image",
       "title": "AppStore画像生成",
       "registryTitle": "ストア画像自動生成スキル",
@@ -150,46 +70,46 @@
         "editor": {
           "defaultColorSchemeId": "warm",
           "colorSchemes": [
-            { "id": "warm", "label": "Warm Yellow" },
-            { "id": "fresh", "label": "Fresh Green" },
-            { "id": "calm", "label": "Calm Blue" },
-            { "id": "mono", "label": "Mono" }
+            {
+              "id": "warm",
+              "label": "Warm Yellow"
+            },
+            {
+              "id": "fresh",
+              "label": "Fresh Green"
+            },
+            {
+              "id": "calm",
+              "label": "Calm Blue"
+            },
+            {
+              "id": "mono",
+              "label": "Mono"
+            }
           ],
           "slides": [
-            { "id": "slide-1", "title": "毎日の作業を、もっと軽く。" },
-            { "id": "slide-2", "title": "必要な情報をすぐ整理" },
-            { "id": "slide-3", "title": "続けやすい習慣を作る" },
-            { "id": "slide-4", "title": "大事な流れを見失わない" },
-            { "id": "slide-5", "title": "リリース前の準備も安心" }
+            {
+              "id": "slide-1",
+              "title": "毎日の作業を、もっと軽く。"
+            },
+            {
+              "id": "slide-2",
+              "title": "必要な情報をすぐ整理"
+            },
+            {
+              "id": "slide-3",
+              "title": "続けやすい習慣を作る"
+            },
+            {
+              "id": "slide-4",
+              "title": "大事な流れを見失わない"
+            },
+            {
+              "id": "slide-5",
+              "title": "リリース前の準備も安心"
+            }
           ]
         }
-      }
-    },
-    {
-      "id": "app-product-summary",
-      "title": "アプリのデータ構造化",
-      "registryTitle": "アプリ情報整理スキル",
-      "description": "コードや画面構成からアプリの価値、機能、ブランド情報を整理し、後続スキルの共通入力を作ります。",
-      "skillPath": "skills/app-product-summary/SKILL.md",
-      "thumbnail": {
-        "label": "YouTube thumbnail",
-        "localPath": "/assets/skills/app-product-summary/thumbnail-youtube.png"
-      },
-      "youtube": {
-        "url": "https://youtu.be/NFGGtqkQSNw",
-        "embedUrl": "https://www.youtube.com/embed/NFGGtqkQSNw"
-      },
-      "execution": {
-        "type": "text",
-        "displayType": "file-result",
-        "outputTitle": "アプリデータ構造化結果",
-        "loadingLabel": "生成中...",
-        "resultSource": {
-          "latestApiPath": "/api/skill-results/app-product-summary/latest",
-          "format": "json",
-          "copyButton": true
-        },
-        "text": "{\n  \"product\": \"Solo task app\",\n  \"targetUser\": \"個人開発者・クリエイター\",\n  \"coreValue\": \"作業の意図、機能、導線を後続スキルで再利用できる形に整理\",\n  \"features\": [\"価値提案の抽出\", \"画面構造の整理\", \"ブランドトーンの要約\"],\n  \"nextSkills\": [\"Instagram投稿生成\", \"AppStore画像生成\", \"15秒PR動画生成\"]\n}"
       }
     },
     {
@@ -244,6 +164,33 @@
           "copyButton": true
         },
         "text": "チェック結果\n\n- APIキー: クライアントに直接埋め込まれていないか確認してください。\n- 通信: 本番APIはHTTPSのみ許可する構成にしてください。\n- 認証: セッション期限、ログアウト、権限チェックの抜けを確認してください。\n- ログ: 個人情報やアクセストークンを出力しない設定にしてください。\n\n優先度\nHigh: APIキー露出確認\nMedium: ログ出力確認\nLow: 不要な権限の削除"
+      }
+    },
+    {
+      "id": "app-product-summary",
+      "title": "アプリのデータ構造化",
+      "registryTitle": "アプリ情報整理スキル",
+      "description": "コードや画面構成からアプリの価値、機能、ブランド情報を整理し、後続スキルの共通入力を作ります。",
+      "skillPath": "skills/app-product-summary/SKILL.md",
+      "thumbnail": {
+        "label": "YouTube thumbnail",
+        "localPath": "/assets/skills/app-product-summary/thumbnail-youtube.png"
+      },
+      "youtube": {
+        "url": "https://youtu.be/NFGGtqkQSNw",
+        "embedUrl": "https://www.youtube.com/embed/NFGGtqkQSNw"
+      },
+      "execution": {
+        "type": "text",
+        "displayType": "file-result",
+        "outputTitle": "アプリデータ構造化結果",
+        "loadingLabel": "生成中...",
+        "resultSource": {
+          "latestApiPath": "/api/skill-results/app-product-summary/latest",
+          "format": "json",
+          "copyButton": true
+        },
+        "text": "{\n  \"product\": \"Solo task app\",\n  \"targetUser\": \"個人開発者・クリエイター\",\n  \"coreValue\": \"作業の意図、機能、導線を後続スキルで再利用できる形に整理\",\n  \"features\": [\"価値提案の抽出\", \"画面構造の整理\", \"ブランドトーンの要約\"],\n  \"nextSkills\": [\"AppStore画像生成\", \"法務チェック\", \"セキュリティチェック\"]\n}"
       }
     }
   ]

@@ -7,7 +7,7 @@ description: アプリのコードベースから、後段 skill の共通入力
 
 アプリのコード、文言、設定ファイル、画面構成、デザイントークン、色アセットを読み、  
 `アプリ理解 + ブランド理解` を 1 つの JSON に統合して出す。  
-この JSON は Instagram フィード投稿画像生成や App Store / Google Play 用画像生成など、後段 skill の中核入力として扱う。
+この JSON は App Store / Google Play 用画像生成など、後段 skill の中核入力として扱う。
 
 # Workflow
 
